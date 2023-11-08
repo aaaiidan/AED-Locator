@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
         fontFamily: 'Arial',
-        fontSize: '30pt' ,
     },
 });
 

@@ -4,11 +4,15 @@ import EmergencyButton from '../components/emergency-button';
 //import externalStyle from '../style/externalStyle';
 
 const Home = ({navigation}) => {
+    const loadMain = () => {
+        navigation.navigate('Main');
+        console.log('hello')
+    }
 
   return (
     <View style={styles.container}>
         <View style={styles.buttonContainer}>
-            <EmergencyButton label = "I am having an emergency" />
+            <EmergencyButton label = "I am having an emergency" onPress={loadMain} />
         </View>
         <View style={styles.buttonContainer}>
             <EmergencyButton label = "Somebody else is having an emergency"/>
