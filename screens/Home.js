@@ -1,21 +1,17 @@
+import * as React from 'react';
 import { View, TouchableOpacity , Text, StyleSheet, TouchableHighlight, Button } from 'react-native';
-import React, { useState } from "react";
 import EmergencyButton from '../components/emergency-button';
 //import externalStyle from '../style/externalStyle';
 
-const Home = () => {
-
-    const MeButtonPress = () => {
-
-    }
+const Home = ({navigation}) => {
 
   return (
     <View style={styles.container}>
         <View style={styles.buttonContainer}>
-            <EmergencyButton label = "I am having an emergency" onPress={MeButtonPress}/>
+            <EmergencyButton label = "I am having an emergency" />
         </View>
         <View style={styles.buttonContainer}>
-            <EmergencyButton label = "Somebody else is having an emergency" onPress={MeButtonPress}/>
+            <EmergencyButton label = "Somebody else is having an emergency"/>
         </View>
     </View>
     
@@ -28,7 +24,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#002b5c',
+        backgroundColor: '#15202b',
     },
     buttonContainer: {
         width: '100%',
