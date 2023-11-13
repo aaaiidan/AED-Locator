@@ -2,15 +2,12 @@ import React from 'react';
 import MapView from 'react-native-maps';
 import { StyleSheet, View, Dimensions } from 'react-native';
 
-const windowWidth = Dimensions.get('window').width;
+//const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const Map = () => {
     return (
-      <View style={styles.mapContainer}>
-        <MapView style={styles.map}/>
-      </View>
-       
+      <MapView style={styles.map}/>
     );
   }
   
@@ -18,8 +15,6 @@ const Map = () => {
     mapContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      height: (windowHeight * 0.3),
-      width: (windowWidth * 0.9),
       backgroundColor: 'green',
       marginTop: (windowHeight * 0.05)
     },

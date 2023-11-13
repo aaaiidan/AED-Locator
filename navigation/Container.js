@@ -1,41 +1,69 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import Home from '../screens/Home';
 import HelpScreen from '../screens/Help';
 import HeaderImage from '../components/header_image';
 import QuestionIcon from '../components/question_icon';
-import MainScreen from '../screens/MainScreen'
 
 
 
 const Stack = createNativeStackNavigator();
-const commonScreenOptions = {
+const Tab = createBottomTabNavigator();
+
+const StackScreenOptions = {
     headerTitle: () => <HeaderImage/>,
     headerStyle:{
         backgroundColor: '#192734'
     }
 }
 
+const TabScreenOptions = {
+    headerShown: false
+    }
+
+const TabNavigator = () => {
+    return (
+        <Tab.Navigator initialRouteName='Home' screenOptions={TabScreenOptions}>
+            <Tab.Screen 
+                name="Home" 
+                component={ StackNavigator } 
+                options={{ 
+                    tabBarStyle: {
+                        
+                    }  
+                }}
+            />
+            <Tab.Screen 
+                name="Help" 
+                component={ HelpScreen } 
+            
+            />
+        </Tab.Navigator>
+    );
+  };
+
 const StackNavigator = () => {
     return (
-        <Stack.Navigator initialRouteName='Home' screenOptions={commonScreenOptions} >
+        <Stack.Navigator screenOptions={StackScreenOptions} >
             <Stack.Screen 
-            name="Home" 
+            name="HomeScreen" 
             component ={ Home } 
             options={({ navigation }) => ({
                 title: 'Home', 
                 headerRight: () => <QuestionIcon navigation={navigation}/>,
               })}
             />
-            <Stack.Screen name='Help' component = { HelpScreen } options={{
+            <Stack.Screen 
+            name='Help' 
+            component = { HelpScreen } 
+            options={{
                 title: 'Help', 
                 gestureDirection: 'vertical',
-            }}/>
-             <Stack.Screen name='Main' component = { MainScreen } options={{
-                title: 'AED Locator', 
             }}/>
         </Stack.Navigator>
     );
 };
 
-export default StackNavigator;
+
+export default TabNavigator;

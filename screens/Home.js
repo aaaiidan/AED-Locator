@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, TouchableOpacity , Text, StyleSheet, TouchableHighlight, Button } from 'react-native';
-import EmergencyButton from '../components/emergency-button';
+import MapView from 'react-native-maps';
 //import externalStyle from '../style/externalStyle';
 
 const Home = ({navigation}) => {
@@ -11,12 +11,7 @@ const Home = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-        <View style={styles.buttonContainer}>
-            <EmergencyButton label = "I am having an emergency" onPress={loadMain} />
-        </View>
-        <View style={styles.buttonContainer}>
-            <EmergencyButton label = "Somebody else is having an emergency"/>
-        </View>
+        <MapView style={styles.map}/>
     </View>
     
   );
@@ -33,6 +28,10 @@ const styles = StyleSheet.create({
     buttonContainer: {
         width: '100%',
         padding: 10,
+    },
+    map: {
+      height:'100%',
+      width:'100%',
     }
 });
 
