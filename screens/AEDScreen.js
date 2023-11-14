@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Image, Text, StyleSheet, Dimensions } from 'react-native';
+import PinIcon from '../components/pin';
 //import externalStyle from '../style/externalStyle';
 
 const screenHeight = Dimensions.get('window').height
@@ -9,7 +10,14 @@ const AEDScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
         <View style={styles.subContainer}>
-            <Text>All AEDs</Text>
+           
+           <PinIcon style={styles.pin}/>
+           <PinIcon style={styles.pin}/>
+           <PinIcon style={styles.pin}/>
+           <PinIcon style={styles.pin}/>
+           <PinIcon style={styles.pin}/>
+           
+           
         </View>
     </View>
     
@@ -19,22 +27,29 @@ const AEDScreen = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#15202b',
-        paddingHorizontal: (screenHeight * 0.025),
+        paddingLeft: (screenHeight * 0.025),
+        paddingRight: (screenHeight * 0.025),
         paddingTop: (screenHeight * 0.025) ,
         paddingBottom: (screenHeight * 0.025),
     },
     subContainer: {
-        backgroundColor: '#fff',
+        flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
+        flexWrap: 'wrap',
+        flexDirection: 'row',
         backgroundColor: '#192734',
         height: '100%' ,
         width: '100%',
     },
+    pin : {
+        width: '50%',
+        height: '33.33%',
+        marginBottom: '22%',
+    }
    
 });
     
