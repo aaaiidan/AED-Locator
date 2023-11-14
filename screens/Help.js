@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 //import externalStyle from '../style/externalStyle';
 
+const screenHeight = Dimensions.get('window').height
 const HelpScreen = ({navigation}) => {
 
   return (

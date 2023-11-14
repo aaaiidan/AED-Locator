@@ -5,47 +5,44 @@ import Home from '../screens/Home';
 import HelpScreen from '../screens/Help';
 import HeaderImage from '../components/header_image';
 import QuestionIcon from '../components/question_icon';
+import AEDScreen from '../screens/AEDScreen';
 
 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const StackScreenOptions = {
+const ScreenOptions = {
     headerTitle: () => <HeaderImage/>,
     headerStyle:{
         backgroundColor: '#192734'
-    }
+    },
 }
-
-const TabScreenOptions = {
-    headerShown: false
-    }
 
 const TabNavigator = () => {
     return (
-        <Tab.Navigator initialRouteName='Home' screenOptions={TabScreenOptions}>
+        <Tab.Navigator initialRouteName='Home'>
             <Tab.Screen 
-                name="Home" 
-                component={ StackNavigator } 
+                name="Map" 
+                component={ HomeStackNavigator } 
                 options={{ 
-                    tabBarStyle: {
-                        
-                    }  
+                    headerShown: false,
                 }}
             />
             <Tab.Screen 
-                name="Help" 
-                component={ HelpScreen } 
-            
+                name="All AEDs" 
+                component={ AllAEDStackNavigator } 
+                options={{ 
+                    headerShown: false
+                }}
             />
         </Tab.Navigator>
     );
   };
 
-const StackNavigator = () => {
+const HomeStackNavigator = () => {
     return (
-        <Stack.Navigator screenOptions={StackScreenOptions} >
+        <Stack.Navigator screenOptions={ScreenOptions} >
             <Stack.Screen 
             name="HomeScreen" 
             component ={ Home } 
@@ -59,8 +56,33 @@ const StackNavigator = () => {
             component = { HelpScreen } 
             options={{
                 title: 'Help', 
-                gestureDirection: 'vertical',
-            }}/>
+                gestureDirection: 'horizontal',
+            }}
+            />
+        </Stack.Navigator>
+    );
+};
+
+
+const AllAEDStackNavigator = () => {
+    return (
+        <Stack.Navigator screenOptions={ScreenOptions} >
+            <Stack.Screen 
+            name="AllAED" 
+            component ={ AEDScreen } 
+            options={({ navigation }) => ({
+                title: 'Home', 
+                headerRight: () => <QuestionIcon navigation={navigation}/>,
+              })}
+            />
+            <Stack.Screen 
+            name='Help' 
+            component = { HelpScreen } 
+            options={{
+                title: 'Help', 
+                gestureDirection: 'horizontal',
+            }}
+            />
         </Stack.Navigator>
     );
 };
