@@ -1,17 +1,19 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import { View, TouchableOpacity , Text, StyleSheet, TouchableHighlight, Button } from 'react-native';
 import MapView from 'react-native-maps';
 //import externalStyle from '../style/externalStyle';
 
 const Home = ({navigation}) => {
-    const loadMain = () => {
-        navigation.navigate('Main');
-        console.log('hello')
-    }
+
+  const [modalAEDVisible, setModalAEDVisible] = useState(false);
 
   return (
     <View style={styles.container}>
         <MapView style={styles.map}/>
+        <TouchableOpacity style={{height: 100, width:100, backgroundColor:'#FFFFFF'}} onPress={ () => setModalAEDVisible(true)}>
+          <Text>Open</Text>
+        </TouchableOpacity>
+
     </View>
     
   );

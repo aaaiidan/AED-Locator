@@ -1,13 +1,18 @@
-import * as React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import React, {useState} from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 //import externalStyle from '../style/externalStyle';
 
 const screenHeight = Dimensions.get('window').height
 const HelpScreen = ({navigation}) => {
 
+  const [modalAEDVisible, setModalAEDVisible] = useState(false);
+
   return (
     <View style={styles.container}>
-        <Text>Hello</Text>
+        <ModalScreen visibility={modalAEDVisible} onClose={ () => setModalAEDVisible(!modalAEDVisible) }/>
+        <TouchableOpacity style={{height: 100, width:100, backgroundColor:'#FFFFFF'}} onPress={ () => setModalAEDVisible(true)}>
+          <Text>Open</Text>
+        </TouchableOpacity>
     </View>
     
   );
@@ -16,7 +21,6 @@ const HelpScreen = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#15202b',

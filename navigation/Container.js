@@ -6,8 +6,7 @@ import HelpScreen from '../screens/Help';
 import HeaderImage from '../components/header_image';
 import QuestionIcon from '../components/question_icon';
 import AEDScreen from '../screens/AEDScreen';
-
-
+import TestScreen from '../screens/TestScreen'; 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -32,6 +31,14 @@ const TabNavigator = () => {
             <Tab.Screen 
                 name="All AEDs" 
                 component={ AllAEDStackNavigator } 
+                options={{ 
+                    headerShown: false
+                }}
+            />
+
+            <Tab.Screen 
+                name="Test" 
+                component={ TestScreen } 
                 options={{ 
                     headerShown: false
                 }}

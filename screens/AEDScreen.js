@@ -17,24 +17,17 @@ const pinHeight = ({ noOfAED }) => {
 
 const AEDScreen = ({navigation}) => {
 
-    React.useEffect(() => {
-        const returnValue = pinHeight({noOfAED });
-        const b = scrollViewHeight({noOfAED })
-        console.log(returnValue)
-        console.log(b)
-    }, []);
-
     return (
         <View style={styles.container}>
             <View style={styles.subContainer}>
                 <ScrollView contentContainerStyle={styles.scrollView}>
-                    <PinIcon style={styles.pin}/>
-                    <PinIcon style={styles.pin}/>
-                    <PinIcon style={styles.pin}/>
-                    <PinIcon style={styles.pin}/>
-                    <PinIcon style={styles.pin}/>
-                    <PinIcon style={styles.pin}/>
-                    <PinIcon style={styles.pin}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
+                    <PinIcon style={styles.pin} navigation={navigation}/>
                 </ScrollView>
             </View>
         </View>
