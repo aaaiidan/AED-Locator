@@ -4,7 +4,7 @@ import Modal from 'react-native-modal';
 import DownArrowIcon from '../components/down_arrow';
 import AEDImageContainer from '../components/aed_image_container';
 import LocateIcon from '../components/locate_icon';
-
+import ImageModal from '../components/modals/image_modal';
   
 const screenHeight = Dimensions.get('window').height
 
@@ -25,7 +25,8 @@ const TestScreen = ({navigation}) => {
       <TouchableOpacity  onPress={toggleModal} style={{ backgroundColor: 'green'}}>
         <Text>Open</Text>
       </TouchableOpacity>
-      <Modal isVisible={isModalVisible} style={styles.modal} backdropOpacity={0} swipeDirection={ 'down'} onSwipeComplete={() => setModalVisible(false)}>
+      <ImageModal/>
+      <Modal isVisible={isModalVisible} style={styles.modal} backdropOpacity={0} swipeDirection={'down'} onSwipeComplete={() => setModalVisible(false)} animationInTiming={750} animationOutTiming={750}>
         <View style={styles.modalView}>
           <DownArrowIcon style={styles.downArrow} onPress={toggleModal}/>
           <AEDImageContainer style={styles.aed} />
