@@ -7,6 +7,7 @@ import HeaderImage from '../components/header_image';
 import QuestionIcon from '../components/question_icon';
 import AEDScreen from '../screens/AEDScreen';
 import TestScreen from '../screens/TestScreen'; 
+import ImageModal from '../components/modals/image_modal';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,6 +44,16 @@ const TabNavigator = () => {
                     headerShown: false
                 }}
             />
+
+            <Tab.Screen 
+                name="image" 
+                component={ ImageModal } 
+                options={{ 
+                    headerShown: false
+                }}
+            />
+
+             
         </Tab.Navigator>
     );
   };

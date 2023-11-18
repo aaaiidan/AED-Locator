@@ -9,7 +9,6 @@ const HelpScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-        <ModalScreen visibility={modalAEDVisible} onClose={ () => setModalAEDVisible(!modalAEDVisible) }/>
         <TouchableOpacity style={{height: 100, width:100, backgroundColor:'#FFFFFF'}} onPress={ () => setModalAEDVisible(true)}>
           <Text>Open</Text>
         </TouchableOpacity>
