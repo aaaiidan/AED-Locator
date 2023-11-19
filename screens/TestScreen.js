@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, SafeAreaView } from 'react-native';
 import Modal from 'react-native-modal';
 import DownArrowIcon from '../components/down_arrow';
@@ -15,21 +15,42 @@ const TestScreen = ({navigation}) => {
   const days = 'Monday \n Tuesday \n Wednesday \n Thursday \n Friday \n Saturday \n Sunday'
   const openingTimes = '9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00'
 
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false)
+  const [isImageModalVisible, setImageModalVisible] = useState(false)
+  const [animationTime, setAnimationTime] = useState(750)
+  const [needImage, setNeedImage] = useState(false)
+
   const toggleModal = () => {
-      setModalVisible(!isModalVisible);
+        setAnimationTime(750)
+        setModalVisible(!isModalVisible);
+        setNeedImage(false)
     };
+    
+    const toggleModalWithTiming = () => {
+        setNeedImage(true)
+        setAnimationTime(1)
+        setModalVisible(!isModalVisible)
+        
+    }
+
+    const toggleImageModal = () => {
+        if(needImage){
+            setImageModalVisible(!isImageModalVisible)
+        }
+        //setModalVisible(!isModalVisible)
+    };
+
 
   return (
     <View style={styles.container}>
       <TouchableOpacity  onPress={toggleModal} style={{ backgroundColor: 'green'}}>
         <Text>Open</Text>
       </TouchableOpacity>
-      <ImageModal/>
-      <Modal isVisible={isModalVisible} style={styles.modal} backdropOpacity={0} swipeDirection={'down'} onSwipeComplete={() => setModalVisible(false)} animationInTiming={750} animationOutTiming={750}>
+      <ImageModal visibility={isImageModalVisible} ImageModalVisibility={toggleImageModal} toggleParentModal={toggleModal}/>
+      <Modal isVisible={isModalVisible} style={styles.modal} backdropOpacity={0} swipeDirection={'down'} onSwipeComplete={() => setModalVisible(false)} animationInTiming={animationTime} animationOutTiming={animationTime} onModalHide={toggleImageModal}>
         <View style={styles.modalView}>
           <DownArrowIcon style={styles.downArrow} onPress={toggleModal}/>
-          <AEDImageContainer style={styles.aed} />
+          <AEDImageContainer style={styles.aed} onPress={toggleModalWithTiming} />
           <View style={styles.infoContainer}>
             <Text style={styles.address}> {address}</Text>
             <View style={styles.openingTimesContainer}>
