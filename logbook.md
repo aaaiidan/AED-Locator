@@ -92,8 +92,14 @@ that is pushed to master, as well as any design, research, testing and thought p
   * New modal component created to display the image at a larger scale when clicked on
   * Took a while to get height of image to be correct
 
-###
+### 19/11/2023
 * Integrating image expand into original AED information pop up modal within Test Screen (3 hours 40 minutes)
   * Within Test Screen, many useStates and passing of props were used to communicate between the parent modal and the child modal
 
 * Integrated Test Screen into Home screen and added new button to home screen (2 hours 30 minutes)
+
+### 25/11/2023
+* Changed pop up to be an Animated view handle by gesture handle instead of using modal (1 hour 20 minutes)
+  * Used [React-Native-Reanimated](https://github.com/software-mansion/react-native-reanimated) and [React-Native-Gesture-Handler](https://github.com/software-mansion/react-native-gesture-handler) to allow for more functionality than Modal
+* Fixed issues with gesture handler swiping (30 minutes)
+* Integrated new pop up feature into home screen (10 minutes)
