@@ -41,18 +41,9 @@ const TabNavigator = () => {
                 name="Test" 
                 component={ TestScreen } 
                 options={{ 
-                    headerShown: false
+                    headerShown: true
                 }}
             />
-
-            <Tab.Screen 
-                name="image" 
-                component={ ImageModal } 
-                options={{ 
-                    headerShown: false
-                }}
-            />
-
              
         </Tab.Navigator>
     );
