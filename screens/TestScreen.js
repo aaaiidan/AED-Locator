@@ -21,6 +21,55 @@ const days = 'Monday \n Tuesday \n Wednesday \n Thursday \n Friday \n Saturday \
 const openingTimes = '9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00'
 
 const TestScreen = ({navigation}) => {
+
+    const fetchNearestAED = async () => {
+        console.log('Fetching data...');
+        try{
+        const querySnapshot = await getDocs(collection(db, "Aeds"));
+        querySnapshot.forEach((doc) => {
+            console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
+        });
+        } catch (error) {
+        console.error("Error fetching data:", error);
+        }
+    }
+
+    const fetchNearestAED2 = async () => {
+        try{
+        const locationQuery = query(collection(db, 'Locations'), where('Name', '==', 'James Weir'));
+        const locationSnapshot = await getDocs(locationQuery);
+        const locationDoc = locationSnapshot.docs[0].data();
+
+        const aedQuery = query(collection(db, 'Aeds'), where('LocationRef', '==', locationDoc.ref));
+        const aedSnapshot = await getDocs(aedQuery);
+
+        if (aedSnapshot.empty) {
+            console.log('No AED found for the specified location - /Locations/' + locationDoc.id);
+            return;
+        }
+
+        const aedDoc = aedSnapshot.docs[0].data();
+
+        console.log(aedDoc.Description, locationDoc.Address.AddressLine1, locationDoc.OpeningTimes);
+        setAddress(locationDoc.Name + '\n' + locationDoc.Address.AddressLine1 + '\n' + locationDoc.Address.City + '\n' + locationDoc.Address.Postcode);
+        setOpeningTimes()
+        
+        const openingTimesObj = locationDoc.OpeningTimes;
+        if (openingTimesObj) {
+            Object.entries(openingTimesObj).forEach(([day, time]) => {
+            setOpeningTimes(prevOpeningTimes => (prevOpeningTimes || '') + `${day}: ${time.Open} - ${time.Close}\n`);
+            });
+        } else {
+            console.error('OpeningTimes field is not defined in the document.');
+        }
+        
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+    
+
+
   //Variables for gesture handling
   const translateY = useSharedValue(intialY); // Initial position below the screen
   const gestureState = useSharedValue(maxY);
