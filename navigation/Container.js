@@ -7,7 +7,7 @@ import HeaderImage from '../components/header_image';
 import QuestionIcon from '../components/question_icon';
 import AEDScreen from '../screens/AEDScreen';
 import TestScreen from '../screens/TestScreen'; 
-import ImageModal from '../components/modals/image_modal';
+import animatedViewOverlay from '../components/animatedViewOverlay';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -19,15 +19,18 @@ const ScreenOptions = {
     },
 }
 
-const TabNavigator = () => {
+const TabNavigator = ( {startAnimation} ) => {
+    console.log(startAnimation);
+
     return (
-        <Tab.Navigator initialRouteName='Home'>
+        <Tab.Navigator initialRouteName='Home'  >
             <Tab.Screen 
                 name="Map" 
                 component={ HomeStackNavigator } 
                 options={{ 
                     headerShown: false,
                 }}
+                initialParams={ { startAnimation } }
             />
             <Tab.Screen 
                 name="All AEDs" 
@@ -44,22 +47,26 @@ const TabNavigator = () => {
                     headerShown: true
                 }}
             />
-             
         </Tab.Navigator>
     );
   };
 
-const HomeStackNavigator = () => {
+  const HomeStackNavigator = ({ route }) => {
+    const startAnimation = route.params?.startAnimation;
+    console.log('-----------', startAnimation);
+
     return (
         <Stack.Navigator screenOptions={ScreenOptions} >
             <Stack.Screen 
-            name="HomeScreen" 
-            component ={ Home } 
-            options={({ navigation }) => ({
-                title: 'Home', 
-                headerRight: () => <QuestionIcon navigation={navigation}/>,
-              })}
-            />
+                name="HomeScreen" 
+                options={({ navigation }) => ({
+                    title: 'Home', 
+                    headerRight: () => <QuestionIcon navigation={navigation}/>,
+                })}
+            >
+                {(props) => <Home {...props} startAnimation={startAnimation} />}
+            </Stack.Screen>
+
             <Stack.Screen 
             name='Help' 
             component = { HelpScreen } 

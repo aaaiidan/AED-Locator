@@ -12,86 +12,12 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db } from '../services/firebaseConfig';
 
 const screenHeight = Dimensions.get('window').height
-const screenWdidth = Dimensions.get('window').width
-const placeholder_aed = require('../assets/images/placeholder_aed.jpg')
-const image = Image.resolveAssetSource(placeholder_aed)
-const intialY = 700
-const maxY = 0
 
+const Home = ({navigation, startAnimation}) => {
 
-
-//Placeholders
-const address = 'John Anderson Building \n 107 Rottenrow E \n Glasgow G4 0NG'
-const days = 'Monday \n Tuesday \n Wednesday \n Thursday \n Friday \n Saturday \n Sunday'
-const openingTimes = '9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00'
-
-const Home = ({navigation}) => {
+    console.log('yooo' + typeof startAnimation);
     const [getAddress, setAddress] = useState('Unavailable');
-    const [getOpeningTimes, setOpeningTimes] = useState('00:00');
-
-    //Variables for gesture handling
-    const translateY = useSharedValue(intialY); // Initial position below the screen
-    const gestureState = useSharedValue(maxY);
-    const velocityFlag = useSharedValue(false);
-    
-    //Variables for image modal
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [ratio, setRatio] = useState(0);
-
-    // Function to handle swiping animation
-    const onGestureEvent = useAnimatedGestureHandler({
-        onStart: (_, ctx) => {
-            ctx.startY = translateY.value; // ctx is object that stores phases of gesture (y value)
-            gestureState.value = 1; // Gesture is active 
-        },
-        onActive: (event, ctx) => {
-            const currentY = ctx.startY + event.translationY;
-        translateY.value = Math.min(550, Math.max(0, currentY));
-
-        if (event.velocityY > 1000) {
-            velocityFlag.value = true;
-            translateY.value = withTiming(intialY); // Example: Snap to maxY if the swipe velocity is high
-        } else {
-            velocityFlag.value = false;
-        }
-        
-        },
-        onEnd: () => {
-            gestureState.value = 0; // Gesture is inactive 
-            if (!velocityFlag.value){
-            if ( translateY.value < 350) {
-                translateY.value = withTiming(maxY);
-            } else if (translateY.value > 350) {
-                translateY.value = withTiming(intialY);
-            }
-            }
-        },
-        });
-
-    //Function that starts animation of pop up
-    const startAnimation = () => {
-        fetchNearestAED2()
-        translateY.value = withTiming(0 , {duration:750}); // Slide up to position 0
-
-    };
-
-    //Function that changes the y position of pop up depending on users swipe
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-        transform: [{ translateY: translateY.value }],
-        };
-    });
-
-    //Toggle enhanced image visibility
-    const toggleImageModal = () => {
-        setModalVisible(!isModalVisible)
-    }
-
-        //Adjust enhanced image height depending on width
-    useEffect(() => {
-        setRatio(screenWdidth/image.width)
-    },[]);
-
+    const [getOpeningTimes, setOpeningTimes] = useState('');
 
     const loadData = async (collectionName) => {
         try{
@@ -135,16 +61,16 @@ const Home = ({navigation}) => {
             }}   
         >
             {locationData && locationData.map((location, index) => {
-                console.log(location.Name, location.Coordinates); // Corrected syntax
+                console.log(location.Name, location.Coordinates, location.Address); // Corrected syntax
                 return (
                     <Marker
-                    key={location.id}
-                    title={location.Name}
-                    coordinate={{latitude: location.Coordinates.latitude, longitude: location.Coordinates.longitude}}
-                    anchor={{ x: 0.5, y: 1 }}
-                    centerOffset={{ x: 0, y: -34 }}
+                        key={location.id}
+                        title={location.Name}
+                        coordinate={{latitude: location.Coordinates.latitude, longitude: location.Coordinates.longitude}}
+                        anchor={{ x: 0.5, y: 1 }}
+                        centerOffset={{ x: 0, y: -33 }}
+                        onPress={() => startAnimation(location.Name, location.Address)}
                     >
-
                         <Image 
                             source={ require('../assets/images/aedMarker2.png')}
                             resizeMode='contain'
@@ -155,7 +81,7 @@ const Home = ({navigation}) => {
             })}
         </MapView>
         <View style={styles.buttonContainer}>
-            <TouchableOpacity  style={styles.button} onPress={startAnimation}>
+            <TouchableOpacity  style={styles.button} >
                 <Image 
                     source={require('../assets/images/nearby.png')}
                     resizeMode='contain'
@@ -164,37 +90,6 @@ const Home = ({navigation}) => {
                 <Text style={{textAlign: 'center', color: '#FFFFFF'}}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
-        <PanGestureHandler onGestureEvent={onGestureEvent}>
-        <Animated.View style={[styles.animatedView, animatedStyle]}>
-            <Modal 
-            style={styles.modalImage}
-            useNativeDriver={true}
-            animationIn='fadeIn'
-            animationOut='fadeOut'
-            isVisible={isModalVisible}
-            hideModalContentWhileAnimating
-            onBackButtonPress={toggleImageModal}
-            onBackdropPress={toggleImageModal}
-            backdropOpacity={0.9}
-            >
-            <Image 
-            source={placeholder_aed}
-            resizeMode='contain'
-            style={{ width: '100%', height: image.height * ratio}}
-            />
-            </Modal>
-            <DownArrowIcon style={styles.downArrow}/>
-            <AEDImageContainer style={styles.aed} onPress={toggleImageModal} />
-            <View style={styles.infoContainer}>
-            <Text style={styles.address}> {getAddress}</Text>
-            <View style={styles.openingTimesContainer}>
-                <Text style={styles.days}> {days}</Text>
-                <Text style={styles.times}> {getOpeningTimes}</Text>
-            </View>
-            <LocateIcon style={styles.locateButton}/>
-            </View>
-        </Animated.View>
-        </PanGestureHandler>
     </View>
         
     );
@@ -243,6 +138,7 @@ const styles = StyleSheet.create({
         paddingRight: (screenHeight * 0.025),
         paddingBottom: (screenHeight * 0.025),
         position:'absolute',
+        
         
       },
   
