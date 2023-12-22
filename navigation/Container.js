@@ -19,8 +19,8 @@ const ScreenOptions = {
     },
 }
 
-const TabNavigator = ( {startAnimation} ) => {
-    console.log(startAnimation);
+const TabNavigator = () => {
+   
 
     return (
         <Tab.Navigator initialRouteName='Home'  >
@@ -51,22 +51,18 @@ const TabNavigator = ( {startAnimation} ) => {
     );
   };
 
-  const HomeStackNavigator = ({ route }) => {
-    const startAnimation = route.params?.startAnimation;
-    console.log('-----------', startAnimation);
-
+  const HomeStackNavigator = () => {
+  
     return (
         <Stack.Navigator screenOptions={ScreenOptions} >
             <Stack.Screen 
                 name="HomeScreen" 
+                component = { Home } 
                 options={({ navigation }) => ({
                     title: 'Home', 
                     headerRight: () => <QuestionIcon navigation={navigation}/>,
                 })}
-            >
-                {(props) => <Home {...props} startAnimation={startAnimation} />}
-            </Stack.Screen>
-
+            />
             <Stack.Screen 
             name='Help' 
             component = { HelpScreen } 

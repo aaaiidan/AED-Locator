@@ -9,9 +9,6 @@ import AnimatedViewOverlay from './components/animatedViewOverlay';
 
 export default function App() {
     const [location, setLocation] = useState(null);
-
-    const animatedViewRef = useRef();
-
     useEffect(() => {
         (async () => {
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -21,19 +18,14 @@ export default function App() {
         })();
     }, []);
 
-    const handleAnimation = (name, address) => {
-        if (animatedViewRef.current) {
-          animatedViewRef.current.startAnimation(name, address);
-        }
-      };
+   
 
 
     return (
         <GestureHandlerRootView style={{flex: 1}}>
             <NavigationContainer >
-                <StackNavigator startAnimation={handleAnimation}/>
+                <StackNavigator/>
             </NavigationContainer>
-            <AnimatedViewOverlay ref={animatedViewRef}/>
         </GestureHandlerRootView>
   );
 }

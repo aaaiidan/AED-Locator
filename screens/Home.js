@@ -10,14 +10,83 @@ import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGes
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
+import AnimatedViewOverlay from '../components/animatedViewOverlay';
 
-const screenHeight = Dimensions.get('window').height
+const screenHeight = Dimensions.get('window').height;
+const screenWdidth = Dimensions.get('window').width;
+const placeholder_aed = require('../assets/images/placeholder_aed.jpg');
+const image = Image.resolveAssetSource(placeholder_aed);
+const intialY = 900;
+const maxY = 0;
 
-const Home = ({navigation, startAnimation}) => {
+const Home = ({navigation}) => {
 
-    console.log('yooo' + typeof startAnimation);
     const [getAddress, setAddress] = useState('Unavailable');
     const [getOpeningTimes, setOpeningTimes] = useState('');
+
+    //Variables for gesture handling
+    const translateY = useSharedValue(intialY); // Initial position below the screen
+    const gestureState = useSharedValue(maxY);
+    const velocityFlag = useSharedValue(false);
+
+    //Variables for image modal
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [ratio, setRatio] = useState(0);
+
+    // Function to handle swiping animation
+    const onGestureEvent = useAnimatedGestureHandler({
+        onStart: (_, ctx) => {
+            ctx.startY = translateY.value; // ctx is object that stores phases of gesture (y value)
+            gestureState.value = 1; // Gesture is active 
+        },
+        onActive: (event, ctx) => {
+            const currentY = ctx.startY + event.translationY;
+        translateY.value = Math.min(550, Math.max(0, currentY));
+
+        if (event.velocityY > 1000) {
+            velocityFlag.value = true;
+            translateY.value = withTiming(intialY); // Example: Snap to maxY if the swipe velocity is high
+        } else {
+            velocityFlag.value = false;
+        }
+        
+        },
+        onEnd: () => {
+            gestureState.value = 0; // Gesture is inactive 
+            if (!velocityFlag.value){
+            if ( translateY.value < 350) {
+                translateY.value = withTiming(maxY);
+            } else if (translateY.value > 350) {
+                translateY.value = withTiming(intialY);
+            }
+            }
+        },
+        });
+
+          //Function that starts animation of pop up
+    const startAnimation = ( name, address) => {
+        setAddress(name + '\n' + address.AddressLine1 + '\n' + address.City + address.Postcode)
+        console.log(name, address)
+        translateY.value = withTiming(0 , {duration:750}); // Slide up to position 0
+
+    };
+
+    //Function that changes the y position of pop up depending on users swipe
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+        transform: [{ translateY: translateY.value }],
+        };
+    });
+
+    //Toggle enhanced image visibility
+    const toggleImageModal = () => {
+        setModalVisible(!isModalVisible)
+    }
+
+        //Adjust enhanced image height depending on width
+    useEffect(() => {
+        setRatio(screenWdidth/image.width)
+    },[]);
 
     const loadData = async (collectionName) => {
         try{
@@ -47,6 +116,7 @@ const Home = ({navigation, startAnimation}) => {
         fetchData();
         console.log(locationData)
     },[]);
+
 
     return (
     <View style={styles.container}>
@@ -90,6 +160,37 @@ const Home = ({navigation, startAnimation}) => {
                 <Text style={{textAlign: 'center', color: '#FFFFFF'}}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
+        <PanGestureHandler onGestureEvent={onGestureEvent}>
+            <Animated.View style={[styles.animatedView, animatedStyle]}>
+                <Modal 
+                    style={styles.modalImage}
+                    useNativeDriver={true}
+                    animationIn='fadeIn'
+                    animationOut='fadeOut'
+                    isVisible={isModalVisible}
+                    hideModalContentWhileAnimating
+                    onBackButtonPress={toggleImageModal}
+                    onBackdropPress={toggleImageModal}
+                    backdropOpacity={0.9}
+                >
+                <Image 
+                    source={placeholder_aed}
+                    resizeMode='contain'
+                    style={{ width: '100%', height: image.height * ratio}}
+                />
+                </Modal>
+                <DownArrowIcon style={styles.downArrow}/>
+                <AEDImageContainer style={styles.aed} onPress={toggleImageModal} />
+                <View style={styles.infoContainer}>
+                    <Text style={styles.address}> {getAddress} </Text>
+                    <View style={styles.openingTimesContainer}>
+                        <Text style={styles.days}> das</Text>
+                        <Text style={styles.times}> {getOpeningTimes}</Text>
+                    </View>
+                    <LocateIcon style={styles.locateButton}/>
+                </View>
+            </Animated.View>
+        </PanGestureHandler>
     </View>
         
     );
@@ -138,8 +239,7 @@ const styles = StyleSheet.create({
         paddingRight: (screenHeight * 0.025),
         paddingBottom: (screenHeight * 0.025),
         position:'absolute',
-        
-        
+
       },
   
       downArrow: {

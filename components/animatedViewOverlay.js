@@ -15,78 +15,15 @@ const image = Image.resolveAssetSource(placeholder_aed);
 const intialY = 900;
 const maxY = 0;
 
-const AnimatedViewOverlay = forwardRef((props, ref) =>{
+const AnimatedViewOverlay = () =>{
 
     const [getAddress, setAddress] = useState('Unavailable');
     const [getOpeningTimes, setOpeningTimes] = useState('');
-
-    //Variables for gesture handling
-    const translateY = useSharedValue(intialY); // Initial position below the screen
-    const gestureState = useSharedValue(maxY);
-    const velocityFlag = useSharedValue(false);
 
     //Variables for image modal
     const [isModalVisible, setModalVisible] = useState(false);
     const [ratio, setRatio] = useState(0);
 
-    // Function to handle swiping animation
-    const onGestureEvent = useAnimatedGestureHandler({
-        onStart: (_, ctx) => {
-            ctx.startY = translateY.value; // ctx is object that stores phases of gesture (y value)
-            gestureState.value = 1; // Gesture is active 
-        },
-        onActive: (event, ctx) => {
-            const currentY = ctx.startY + event.translationY;
-        translateY.value = Math.min(550, Math.max(0, currentY));
-
-        if (event.velocityY > 1000) {
-            velocityFlag.value = true;
-            translateY.value = withTiming(intialY); // Example: Snap to maxY if the swipe velocity is high
-        } else {
-            velocityFlag.value = false;
-        }
-        
-        },
-        onEnd: () => {
-            gestureState.value = 0; // Gesture is inactive 
-            if (!velocityFlag.value){
-            if ( translateY.value < 350) {
-                translateY.value = withTiming(maxY);
-            } else if (translateY.value > 350) {
-                translateY.value = withTiming(intialY);
-            }
-            }
-        },
-        });
-
-          //Function that starts animation of pop up
-    const startAnimation = ( name, address) => {
-        setAddress(name + '\n' + address.AddressLine1 + '\n' + address.City + address.Postcode)
-        console.log(name, address)
-        translateY.value = withTiming(0 , {duration:750}); // Slide up to position 0
-
-    };
-
-    React.useImperativeHandle(ref, () => ({
-        startAnimation,
-      }));
-
-    //Function that changes the y position of pop up depending on users swipe
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-        transform: [{ translateY: translateY.value }],
-        };
-    });
-
-    //Toggle enhanced image visibility
-    const toggleImageModal = () => {
-        setModalVisible(!isModalVisible)
-    }
-
-        //Adjust enhanced image height depending on width
-    useEffect(() => {
-        setRatio(screenWdidth/image.width)
-    },[]);
 
 
     return (
@@ -122,7 +59,7 @@ const AnimatedViewOverlay = forwardRef((props, ref) =>{
             </Animated.View>
         </PanGestureHandler>
     );
-});
+};
 
 const styles = StyleSheet.create({
     container: {
