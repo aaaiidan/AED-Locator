@@ -5,9 +5,11 @@ import StackNavigator from './navigation/Container';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import AnimatedViewOverlay from './components/animatedViewOverlay';
+import * as Font from 'expo-font'
 //import BottomTabs from './components/bottom_tabs';
 
-export default function App() {
+export default function App() {    
+
     const [location, setLocation] = useState(null);
     useEffect(() => {
         (async () => {
@@ -16,6 +18,7 @@ export default function App() {
            
             setLocation(location);
         })();
+
     }, []);
 
    

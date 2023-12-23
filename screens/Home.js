@@ -22,6 +22,7 @@ const maxY = 0;
 const Home = ({navigation}) => {
 
     const [getAddress, setAddress] = useState('Unavailable');
+    const [getName, setName] = useState('Unavailable');
     const [getOpeningTimes, setOpeningTimes] = useState('');
 
     //Variables for gesture handling
@@ -65,7 +66,8 @@ const Home = ({navigation}) => {
 
           //Function that starts animation of pop up
     const startAnimation = ( name, address) => {
-        setAddress(name + '\n' + address.AddressLine1 + '\n' + address.City + address.Postcode)
+        setAddress(Object.values(address));
+        setName(name);
         console.log(name, address)
         translateY.value = withTiming(0 , {duration:750}); // Slide up to position 0
 
@@ -116,7 +118,6 @@ const Home = ({navigation}) => {
         fetchData();
         console.log(locationData)
     },[]);
-
 
     return (
     <View style={styles.container}>
@@ -179,15 +180,16 @@ const Home = ({navigation}) => {
                     style={{ width: '100%', height: image.height * ratio}}
                 />
                 </Modal>
-                <DownArrowIcon style={styles.downArrow}/>
-                <AEDImageContainer style={styles.aed} onPress={toggleImageModal} />
+                <View style={styles.curvedIcon}>
+                </View>
                 <View style={styles.infoContainer}>
-                    <Text style={styles.address}> {getAddress} </Text>
-                    <View style={styles.openingTimesContainer}>
-                        <Text style={styles.days}> das</Text>
-                        <Text style={styles.times}> {getOpeningTimes}</Text>
+                    <View style={styles.textContainer}>
+                        <Text style={styles.name} adjustsFontSizeToFit >{getName}</Text >
+                        {getAddress.map((value, index) => (
+                            <Text key={index} style={styles.text} adjustsFontSizeToFit>{value}</Text>
+                        ))}
                     </View>
-                    <LocateIcon style={styles.locateButton}/>
+                    <AEDImageContainer style={styles.aed} onPress={toggleImageModal} />
                 </View>
             </Animated.View>
         </PanGestureHandler>
@@ -232,12 +234,12 @@ const styles = StyleSheet.create({
       animatedView: {
         alignItems: 'center',
         justifyContent: 'flex-start',
-        height: '90%',
+        height: '20%',
         width: '100%',
         backgroundColor: '#15202b',
-        paddingLeft: (screenHeight * 0.025),
-        paddingRight: (screenHeight * 0.025),
-        paddingBottom: (screenHeight * 0.025),
+        paddingLeft: (screenHeight * 0.0125),
+        paddingRight: (screenHeight * 0.0125),
+        paddingBottom: (screenHeight * 0.0125),
         position:'absolute',
 
       },
@@ -248,12 +250,12 @@ const styles = StyleSheet.create({
       },
   
       aed: {
-        height: '25%',
+        height: '80%',
         aspectRatio: 1,
         borderRadius: 100,
+        borderWidth: 2,
         overflow: 'hidden',
         borderColor: '#FFFFFF',
-        borderWidth: 5,
         marginTop: '5%',
         marginBottom: '5%',
       },
@@ -262,9 +264,12 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexDirection: 'row',
         backgroundColor: '#192734',
         height: '100%' ,
         width: '100%',
+        paddingLeft: '5%',
+        paddingRight: '5%'
       },
   
       locateButton:{
@@ -278,36 +283,42 @@ const styles = StyleSheet.create({
        
       },
   
-      openingTimesContainer:{
-        width: '100%',
+      textContainer:{
+        width: '70%',
         justifyContent: 'center',
-        flexDirection: 'row',
+    
       },
   
-      address:{
-        textAlign:'center',
-        marginTop: (screenHeight * 0.025),
+      text:{
+        textAlign:'left',
         color: '#FFFFFF',
-        fontSize: 20,
+        fontSize: 15,
       },
-  
-      days:{
+
+      name:{
         textAlign:'left',
         color: '#FFFFFF',
         fontSize: 20,
+        fontWeight: 'bold'
       },
   
-      times:{
-        textAlign:'left',
-        color: '#FFFFFF',
-        fontSize: 20,
-      },
+      
 
       modalImage: {
         margin: 0,
         alignItems: 'center',
         justifyContent: 'center',
       },
+
+      curvedIcon: {
+        marginBottom:(screenHeight * 0.025),
+        marginTop:((screenHeight * 0.0125) /2 ) - 2 ,
+        backgroundColor: '#FFFFFF',
+        width: 50,
+        height: 4,
+        borderRadius: 100,
+      },
+
 });
 
 export default Home;

@@ -30,7 +30,6 @@ const TabNavigator = () => {
                 options={{ 
                     headerShown: false,
                 }}
-                initialParams={ { startAnimation } }
             />
             <Tab.Screen 
                 name="All AEDs" 
