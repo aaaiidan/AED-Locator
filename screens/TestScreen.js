@@ -4,16 +4,18 @@ import Modal from 'react-native-modal';
 import DownArrowIcon from '../components/down_arrow';
 import AEDImageContainer from '../components/aed_image_container';
 import LocateIcon from '../components/locate_icon';
-import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler } from 'react-native-reanimated';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
+import { PanGestureHandler, ScrollView } from 'react-native-gesture-handler';
 
 // constant variables
 const screenHeight = Dimensions.get('window').height
 const screenWdidth = Dimensions.get('window').width
 const placeholder_aed = require('../assets/images/placeholder_aed.jpg')
 const image = Image.resolveAssetSource(placeholder_aed)
-const intialY = 700
-const maxY = 0
+const closedY = 700
+const smallOpenY = 515
+const mediumOpenY = 150
+const fullOpenY = 0
 
 //Placeholders
 const address = 'John Anderson Building \n 107 Rottenrow E \n Glasgow G4 0NG'
@@ -22,59 +24,15 @@ const openingTimes = '9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:00 \n 9:00 - 17:
 
 const TestScreen = ({navigation}) => {
 
-    const fetchNearestAED = async () => {
-        console.log('Fetching data...');
-        try{
-        const querySnapshot = await getDocs(collection(db, "Aeds"));
-        querySnapshot.forEach((doc) => {
-            console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
-        });
-        } catch (error) {
-        console.error("Error fetching data:", error);
-        }
-    }
-
-    const fetchNearestAED2 = async () => {
-        try{
-        const locationQuery = query(collection(db, 'Locations'), where('Name', '==', 'James Weir'));
-        const locationSnapshot = await getDocs(locationQuery);
-        const locationDoc = locationSnapshot.docs[0].data();
-
-        const aedQuery = query(collection(db, 'Aeds'), where('LocationRef', '==', locationDoc.ref));
-        const aedSnapshot = await getDocs(aedQuery);
-
-        if (aedSnapshot.empty) {
-            console.log('No AED found for the specified location - /Locations/' + locationDoc.id);
-            return;
-        }
-
-        const aedDoc = aedSnapshot.docs[0].data();
-
-        console.log(aedDoc.Description, locationDoc.Address.AddressLine1, locationDoc.OpeningTimes);
-        setAddress(locationDoc.Name + '\n' + locationDoc.Address.AddressLine1 + '\n' + locationDoc.Address.City + '\n' + locationDoc.Address.Postcode);
-        setOpeningTimes()
-        
-        const openingTimesObj = locationDoc.OpeningTimes;
-        if (openingTimesObj) {
-            Object.entries(openingTimesObj).forEach(([day, time]) => {
-            setOpeningTimes(prevOpeningTimes => (prevOpeningTimes || '') + `${day}: ${time.Open} - ${time.Close}\n`);
-            });
-        } else {
-            console.error('OpeningTimes field is not defined in the document.');
-        }
-        
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    }
-    
 
 
   //Variables for gesture handling
-  const translateY = useSharedValue(intialY); // Initial position below the screen
-  const gestureState = useSharedValue(maxY);
+  const translateY = useSharedValue(closedY); // Initial position below the screen
+  const gestureState = useSharedValue(fullOpenY);
   const velocityFlag = useSharedValue(false);
   
+    const [mediumVisible, setmediumVisible] = useState(true);
+
   //Variables for image modal
   const [isModalVisible, setModalVisible] = useState(false);
   const [ratio, setRatio] = useState(0);
@@ -84,34 +42,47 @@ const TestScreen = ({navigation}) => {
 		onStart: (_, ctx) => {
 		  	ctx.startY = translateY.value; // ctx is object that stores phases of gesture (y value)
 		  	gestureState.value = 1; // Gesture is active 
+            
+            
 		},
 		onActive: (event, ctx) => {
 		  	const currentY = ctx.startY + event.translationY;
-			translateY.value = Math.min(550, Math.max(0, currentY));
+			translateY.value = Math.min(700, Math.max(0, currentY));
+            if(translateY.value < 450 && mediumVisible == false){
+                console.log('visible')
+                runOnJS(setmediumVisible)(true)
+            } else if ( translateY.value > 450 && mediumVisible == true){
+                runOnJS(setmediumVisible)(false)
+                console.log('hidden')
+            }
 
 			if (event.velocityY > 1000) {
-        velocityFlag.value = true;
-				translateY.value = withTiming(intialY); // Example: Snap to maxY if the swipe velocity is high
+                velocityFlag.value = true;
+				translateY.value = withTiming(closedY); // Example: Snap to maxY if the swipe velocity is high
 			} else {
-        velocityFlag.value = false;
-      }
+                velocityFlag.value = false;
+            }
 			
 		},
 		onEnd: () => {
 		  	gestureState.value = 0; // Gesture is inactive 
-        if (!velocityFlag.value){
-          if ( translateY.value < 350) {
-            translateY.value = withTiming(maxY);
-          } else if (translateY.value > 350) {
-            translateY.value = withTiming(intialY);
-          }
-        }
+            if (!velocityFlag.value){
+                if ( translateY.value < 450 && translateY.value > mediumOpenY - 50) { 
+                    translateY.value = withTiming(mediumOpenY);
+                } else if ( translateY.value > 450 && translateY.value < smallOpenY){
+                    translateY.value = withTiming(smallOpenY);
+                } else if (translateY.value > smallOpenY) {
+                    translateY.value = withTiming(closedY);
+                } else if ( translateY.value < mediumOpenY - 50){
+                    translateY.value = withTiming(fullOpenY);
+                }
+            }
 		},
-	  });
+	});
 
   //Function that starts animation of pop up
   const startAnimation = () => {
-    translateY.value = withTiming(0 , {duration:750}); // Slide up to position 0
+    translateY.value = withTiming(515 , {duration:750}); // Slide up to position 0
   };
 
   //Function that changes the y position of pop up depending on users swipe
@@ -120,6 +91,23 @@ const TestScreen = ({navigation}) => {
       transform: [{ translateY: translateY.value }],
     };
   });
+
+
+    const smallViewOpacityChange = useAnimatedStyle(() => {
+        const opacity = interpolate(translateY.value, [450, 350], [1, 0], Extrapolate.CLAMP);
+        return {
+        opacity,
+        };
+    });
+
+    const mediumViewOpacityChange = useAnimatedStyle(() => {
+        const opacity = interpolate(translateY.value, [350, 250], [0, 1], Extrapolate.CLAMP);
+        return {
+        opacity,
+        };
+    });
+
+
 
   //Toggle enhanced image visibility
   const toggleImageModal = () => {
@@ -139,33 +127,46 @@ const TestScreen = ({navigation}) => {
 		</TouchableOpacity>
 		<PanGestureHandler onGestureEvent={onGestureEvent}>
 			<Animated.View style={[styles.animatedView, animatedStyle]}>
-        <Modal 
-          style={styles.modalImage}
-          useNativeDriver={true}
-          animationIn='fadeIn'
-          animationOut='fadeOut'
-          isVisible={isModalVisible}
-          hideModalContentWhileAnimating
-          onBackButtonPress={toggleImageModal}
-          onBackdropPress={toggleImageModal}
-          backdropOpacity={0.9}
-        >
-          <Image 
-            source={placeholder_aed}
-            resizeMode='contain'
-            style={{ width: '100%', height: image.height * ratio}}
-          />
-        </Modal>
-				<DownArrowIcon style={styles.downArrow}/>
-				<AEDImageContainer style={styles.aed} onPress={toggleImageModal} />
-				<View style={styles.infoContainer}>
-				  <Text style={styles.address}> {address}</Text>
-          <View style={styles.openingTimesContainer}>
-            <Text style={styles.days}> {days}</Text>
-            <Text style={styles.times}> {openingTimes}</Text>
-          </View>
-				  <LocateIcon style={styles.locateButton}/>
-				</View>
+                <Animated.View style={[styles.smallView, smallViewOpacityChange]}>   
+                        <Modal 
+                            style={styles.modalImage}
+                            useNativeDriver={true}
+                            animationIn='fadeIn'
+                            animationOut='fadeOut'
+                            isVisible={isModalVisible}
+                            hideModalContentWhileAnimating
+                            onBackButtonPress={toggleImageModal}
+                            onBackdropPress={toggleImageModal}
+                            backdropOpacity={0.9}
+                        >
+                            <Image 
+                                source={placeholder_aed}
+                                resizeMode='contain'
+                                style={{ width: '100%', height: image.height * ratio}}
+                            />
+                        </Modal>
+                       
+
+                        <View style={styles.infoContainer}>
+                            <View style={styles.textContainer}>
+                                <Text style={styles.name}>John Anderson Building</Text>
+                                <Text style={styles.text}>107 Rottenrow E</Text>
+                                <Text style={styles.text}>Glasgow</Text>
+                                <Text style={styles.text}>G4 0NG</Text>
+                            </View>
+                            <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} />
+                        </View>
+                    </Animated.View>
+                {mediumVisible ? (
+                   <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
+                        <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} />
+                        <Text style={styles.name}>John Anderson Building</Text>
+                        <Text style={styles.text}>107 Rottenrow E</Text>
+                        <Text style={styles.text}>Glasgow</Text>
+                        <Text style={styles.text}>G4 0NG</Text>
+                   </Animated.View>
+                ) : null }
+                <View style={styles.curvedIcon}/>
 			</Animated.View>
 		</PanGestureHandler>
 	</View>
@@ -183,40 +184,66 @@ const styles = StyleSheet.create({
     animatedView: {
       alignItems: 'center',
       justifyContent: 'flex-start',
-      height: '90%',
+      height: '100%',
       width: '100%',
       backgroundColor: '#15202b',
-      paddingLeft: (screenHeight * 0.025),
-      paddingRight: (screenHeight * 0.025),
-      paddingBottom: (screenHeight * 0.025),
+      paddingLeft: (screenHeight * 0.0125),
+      paddingRight: (screenHeight * 0.0125),
+      paddingBottom: (screenHeight * 0.0125),
       position:'absolute',
       
     },
 
-    downArrow: {
-      width: '10%',
-      aspectRatio:1
-    },
+    smallView: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        height: '14%',
+        width: '100%',
+        position:'absolute',
+        marginTop:(screenHeight * 0.025) ,
+      },
 
-    aed: {
-      height: '25%',
+    mediumView: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        backgroundColor: 'green',
+        height: '100%',
+        width: '100%',
+        position:'absolute',
+      },
+
+    aedSmall: {
+      height: '80%',
       aspectRatio: 1,
       borderRadius: 100,
       overflow: 'hidden',
       borderColor: '#FFFFFF',
-      borderWidth: 5,
+      borderWidth: 2,
       marginTop: '5%',
       marginBottom: '5%',
     },
 
+    aedMedium: {
+        height: '20%',
+        aspectRatio: 1,
+        borderRadius: 100,
+        overflow: 'hidden',
+        borderColor: '#FFFFFF',
+        borderWidth: 2,
+        marginTop: '5%',
+        marginBottom: '5%',
+      },
+
     infoContainer:{
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      backgroundColor: '#192734',
-      height: '100%' ,
-      width: '100%',
-    },
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        backgroundColor: '#192734',
+        height: '100%' ,
+        width: '100%',
+        paddingLeft: '5%',
+        paddingRight: '5%'
+      },
 
     locateButton:{
       alignItems: 'center',
@@ -229,36 +256,41 @@ const styles = StyleSheet.create({
      
     },
 
-    openingTimesContainer:{
-      width: '100%',
-      justifyContent: 'center',
-      flexDirection: 'row',
-    },
+    textContainer:{
+        width: '70%',
+        justifyContent: 'center',
+    
+      },
 
-    address:{
-      textAlign:'center',
-      marginTop: (screenHeight * 0.025),
-      color: '#FFFFFF',
-      fontSize: 20,
-    },
+    text:{
+        textAlign:'left',
+        color: '#FFFFFF',
+        fontSize: 15,
+      },
 
-    days:{
-      textAlign:'left',
-      color: '#FFFFFF',
-      fontSize: 20,
-    },
-
-    times:{
-      textAlign:'right',
-      color: '#FFFFFF',
-      fontSize: 20,
-    },
+      name:{
+        textAlign:'left',
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: 'bold'
+      },
+  
 
     modalImage: {
       margin: 0,
       alignItems: 'center',
       justifyContent: 'center',
     },
+
+    curvedIcon: {
+        marginBottom:(screenHeight * 0.025),
+        marginTop:((screenHeight * 0.0125) /2 ) - 2 ,
+        backgroundColor: '#FFFFFF',
+        width: 50,
+        height: 4,
+        borderRadius: 100,
+        position: 'absolute',
+      },
    
 });
 

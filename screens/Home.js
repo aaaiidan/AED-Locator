@@ -10,18 +10,17 @@ import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGes
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
-import AnimatedViewOverlay from '../components/animatedViewOverlay';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
 const placeholder_aed = require('../assets/images/placeholder_aed.jpg');
 const image = Image.resolveAssetSource(placeholder_aed);
-const intialY = 900;
+const intialY = 200;
 const maxY = 0;
 
 const Home = ({navigation}) => {
 
-    const [getAddress, setAddress] = useState('Unavailable');
+    const [getAddress, setAddress] = useState([]);
     const [getName, setName] = useState('Unavailable');
     const [getOpeningTimes, setOpeningTimes] = useState('');
 
@@ -42,7 +41,7 @@ const Home = ({navigation}) => {
         },
         onActive: (event, ctx) => {
             const currentY = ctx.startY + event.translationY;
-        translateY.value = Math.min(550, Math.max(0, currentY));
+            translateY.value = Math.min(550, Math.max(0, currentY));
 
         if (event.velocityY > 1000) {
             velocityFlag.value = true;
@@ -184,9 +183,9 @@ const Home = ({navigation}) => {
                 </View>
                 <View style={styles.infoContainer}>
                     <View style={styles.textContainer}>
-                        <Text style={styles.name} adjustsFontSizeToFit >{getName}</Text >
+                        <Text style={styles.name}>{getName}</Text >
                         {getAddress.map((value, index) => (
-                            <Text key={index} style={styles.text} adjustsFontSizeToFit>{value}</Text>
+                            <Text key={index} style={styles.text}>{value}</Text>
                         ))}
                     </View>
                     <AEDImageContainer style={styles.aed} onPress={toggleImageModal} />
