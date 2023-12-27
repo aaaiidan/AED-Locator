@@ -147,3 +147,17 @@ that is pushed to master, as well as any design, research, testing and thought p
 * Change where animatedView is within the component hierachy (5 hours)
     * This was done to allow the animated view to cover the navbar when activated
     * useRef was used to complete this
+
+### 22/12/2023
+* Revert back to previous iteration i.e have animatedView behind navbar (4 hours)
+    * Caused too many issues and was inefficent
+    * Further updated the design of animatedView
+        * Providing specific information to user on AED
+
+* Improve animation conditions for animatedView (4 hours)
+    * Started to implement four different stages of the animation
+
+### 23/12/2023
+* Further work on animationView ( 4 hours 15 minutes)
+    * Improve animation transitions
+    * Improve display, information and the four stages of the animation
