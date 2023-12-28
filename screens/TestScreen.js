@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Modal from 'react-native-modal';
-import DownArrowIcon from '../components/down_arrow';
 import AEDImageContainer from '../components/aed_image_container';
 import LocateIcon from '../components/locate_icon';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
@@ -134,34 +133,32 @@ const TestScreen = ({navigation}) => {
 		<PanGestureHandler onGestureEvent={onGestureEvent}>
 			<Animated.View style={[styles.animatedView, animatedStyle]}>
                 <Animated.View style={[styles.smallView, smallViewOpacityChange]}>  
-                        <Modal 
-                            style={styles.modalImage}
-                            useNativeDriver={true}
-                            animationIn='fadeIn'
-                            animationOut='fadeOut'
-                            isVisible={isModalVisible}
-                            hideModalContentWhileAnimating
-                            onBackButtonPress={toggleImageModal}
-                            onBackdropPress={toggleImageModal}
-                            backdropOpacity={0.9}
-                        >
-                            <Image 
-                                source={placeholder_aed}
-                                resizeMode='contain'
-                                style={{ width: '100%', height: image.height * ratio}}
-                            />
-                        </Modal>
-                       
-
-                        <View style={styles.infoContainer}>
-                            <View>
-                                <Text style={styles.name}>John Anderson Building</Text>
-                                <Text style={styles.text}>107 Rottenrow E</Text>
-                                <Text style={styles.text}>Glasgow G4 0NG</Text>
-                            </View>
-                            <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} />
+                    <Modal 
+                        style={styles.modalImage}
+                        useNativeDriver={true}
+                        animationIn='fadeIn'
+                        animationOut='fadeOut'
+                        isVisible={isModalVisible}
+                        hideModalContentWhileAnimating
+                        onBackButtonPress={toggleImageModal}
+                        onBackdropPress={toggleImageModal}
+                        backdropOpacity={0.9}
+                    >
+                        <Image 
+                            source={placeholder_aed}
+                            resizeMode='contain'
+                            style={{ width: '100%', height: image.height * ratio}}
+                        />
+                    </Modal>
+                    <View style={styles.infoContainer}>
+                        <View>
+                            <Text style={styles.name}>John Anderson Building</Text>
+                            <Text style={styles.text}>107 Rottenrow E</Text>
+                            <Text style={styles.text}>Glasgow G4 0NG</Text>
                         </View>
-                    </Animated.View>
+                        <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} />
+                    </View>
+                </Animated.View>
                 {mediumVisible ? (
                     <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
                         <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} />
@@ -414,14 +411,13 @@ const styles = StyleSheet.create({
     },
 
     locateButton:{
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '40%',
-      height: '100%',
-      backgroundColor: '#018489',
-      marginBottom: (screenHeight * 0.025),
-      borderRadius: 10,
-     
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '40%',
+        height: '100%',
+        backgroundColor: '#018489',
+        marginBottom: (screenHeight * 0.025),
+        borderRadius: 10,
     },
 
     textContainer:{
