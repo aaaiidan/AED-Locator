@@ -12,13 +12,14 @@ import { db } from '../services/firebaseConfig';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
-const placeholder_aed = require('../assets/images/placeholder_aed.jpg');
+const placeholder_aed = require('../assets/images/placeholder_aed.png');
 const image = Image.resolveAssetSource(placeholder_aed);
 const closedY = 700;
 const smallOpenY = 520;
 const mediumOpenY = 175;
 const fullOpenY = 0;
 const addressOrder = ['AddressLine1', 'City', 'Postcode']
+const openingTimesOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 const Home = ({navigation}) => {
 
@@ -90,10 +91,7 @@ const Home = ({navigation}) => {
 	});
 
     //Starts animation of overlay
-    const startAnimation = ( name, address) => {
-        setAddress(addressOrder.map(key => address[key]));
-        setName(name);
-        console.log('yoooooo -', name, address, '---', getAddress)
+    const startAnimation = () => {
         translateY.value = withTiming(smallOpenY , {duration:750}); // Slide up to position smallOpenY
     };
 
@@ -139,7 +137,13 @@ const Home = ({navigation}) => {
 
     const [getAddress, setAddress] = useState([]);
     const [getName, setName] = useState('Unavailable');
-    const [getOpeningTimes, setOpeningTimes] = useState('');
+    const [getOpeningTimes, setOpeningTimes] = useState([]);
+
+    const [getBrand, setBrand] = useState('-');
+    const [getDesc, setDesc] = useState('-');
+    const [getFloor, setFloor] = useState('-');
+    const [getImg, setImg] = useState('-');
+
 
     const loadData = async (collectionName) => {
         try{
@@ -150,6 +154,38 @@ const Home = ({navigation}) => {
         } catch (error) {
             console.error("error fetching data: ", error);
         }
+    }
+
+    const formatData = (location) => {
+        setAddress(addressOrder.map(key => location.Address[key]));
+        setOpeningTimes(
+            openingTimesOrder.map(key => {
+                if(location.OpeningTimes[key]['Open'] == 'Closed' || location.OpeningTimes[key]['Open'] == 'Open 24 hours'){
+                    return location.OpeningTimes[key]['Open']
+                } else {
+                    return location.OpeningTimes[key]['Open'] + ' - ' + location.OpeningTimes[key]['Close']
+                }
+                       
+            })
+        );
+        setName(location.Name);
+
+        aedData.some(aed => {
+            if(aed.LocationRef.id == location.id){
+                setBrand(aed.Brand != null ? aed.Brand : '-');
+                setDesc(aed.Description != null ? aed.Description : '-');
+                setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
+                setImg(aed.Image != null ? aed.Image : '-');
+                return true;
+            }
+            return false;
+        });
+        console.log(getBrand, getDesc, getFloor, getImg);
+    }
+
+    const markerSetup = (location) => {
+        formatData(location);
+        startAnimation();
     }
 
     useEffect(() => {
@@ -187,13 +223,13 @@ const Home = ({navigation}) => {
                         title={location.Name}
                         coordinate={{latitude: location.Coordinates.latitude, longitude: location.Coordinates.longitude}}
                         anchor={{ x: 0.5, y: 1 }}
-                        centerOffset={{ x: 0, y: -33 }}
-                        onPress={() => startAnimation(location.Name, location.Address)}
+                        centerOffset={{ x: 0, y: -25 }}
+                        onPress={() => markerSetup(location)}
                     >
                         <Image 
                             source={ require('../assets/images/aedMarker2.png')}
                             resizeMode='contain'
-                            style={{height: 66, width: 44}}
+                            style={{height: 50, width: 35}}
                         />
                     </Marker>
                 );
@@ -252,7 +288,7 @@ const Home = ({navigation}) => {
 
                                 <View style={styles.subContainer}>
                                     <View style={styles.textContainer}>
-                                        <Text style={styles.text}>John Anderson Building</Text>
+                                        <Text style={styles.text}>{getName}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -267,17 +303,17 @@ const Home = ({navigation}) => {
                                     <View style={styles.splitInfoContainer}> 
                                         <View style={styles.textContainer}>
                                             <Text style={styles.name}>Address</Text>
-                                            <Text style={styles.text}>John Anderson Building</Text>
-                                            <Text style={styles.text}>107 Rottenrow E</Text>
-                                            <Text style={styles.text}>Glasgow</Text>
-                                            <Text style={styles.text}>G4 0NG</Text>
+                                            <Text style={styles.text}>{getName}</Text>
+                                            {getAddress.map((value, index) => (
+                                                <Text key={index} style={styles.text}>{value}</Text>
+                                            ))}
                                         </View>
                                     </View>
 
                                     <View style={styles.splitInfoContainer}> 
                                         <View style={styles.textContainer}>
                                             <Text style={styles.name}>Floor</Text>
-                                            <Text style={styles.text}>Level 5</Text>
+                                            <Text style={styles.text}>{getFloor}</Text>
                                         </View>
                                     </View>
                                 </View>
@@ -305,14 +341,10 @@ const Home = ({navigation}) => {
 
                                     <View style={styles.splitInfoContainer}> 
                                         <View style={styles.textContainer}>
-                                        <Text style={styles.name}></Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
+                                            <Text style={styles.name}></Text>
+                                            {getOpeningTimes.map((value, index) => (
+                                                <Text key={index} style={styles.text}>{value}</Text>
+                                            ))}
                                         </View>
                                     </View>
                                 </View>
@@ -321,34 +353,12 @@ const Home = ({navigation}) => {
                             <View style={styles.mediumFullInfoContainer}>
                                 <View style={styles.subContainer}>
                                     <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Opening Times</Text>
+                                        <Text style={styles.name}>Description</Text>
                                     </View>
                                 </View>
                                 <View style={styles.subContainer}>
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                            <Text style={styles.name}>Day</Text>
-                                            <Text style={styles.text}>Monday</Text>
-                                            <Text style={styles.text}>Tuesday</Text>
-                                            <Text style={styles.text}>Wednesday</Text>
-                                            <Text style={styles.text}>Thursday</Text>
-                                            <Text style={styles.text}>Friday</Text>
-                                            <Text style={styles.text}>Saturday</Text>
-                                            <Text style={styles.text}>Sunday</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                        <Text style={styles.name}></Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                        </View>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.text}>{getDesc}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -356,37 +366,16 @@ const Home = ({navigation}) => {
                             <View style={styles.mediumFullInfoContainer}>
                                 <View style={styles.subContainer}>
                                     <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Opening Times</Text>
+                                        <Text style={styles.name}>Brand</Text>
                                     </View>
                                 </View>
                                 <View style={styles.subContainer}>
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                            <Text style={styles.name}>Day</Text>
-                                            <Text style={styles.text}>Monday</Text>
-                                            <Text style={styles.text}>Tuesday</Text>
-                                            <Text style={styles.text}>Wednesday</Text>
-                                            <Text style={styles.text}>Thursday</Text>
-                                            <Text style={styles.text}>Friday</Text>
-                                            <Text style={styles.text}>Saturday</Text>
-                                            <Text style={styles.text}>Sunday</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                        <Text style={styles.name}></Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                            <Text style={styles.text}>9:00 - 17:00</Text>
-                                        </View>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.text}>{getBrand}</Text>
                                     </View>
                                 </View>
                             </View>
+                           
                         </ScrollView>
                    </Animated.View>
                 ) : null }
@@ -394,9 +383,8 @@ const Home = ({navigation}) => {
             </Animated.View>
         </PanGestureHandler>
     </View>
-        
     );
-    };
+};
 
 const styles = StyleSheet.create({
     container: {

@@ -161,3 +161,12 @@ that is pushed to master, as well as any design, research, testing and thought p
 * Further work on animationView ( 4 hours 15 minutes)
     * Improve animation transitions
     * Improve display, information and the four stages of the animation
+
+### 27/12/2023
+* Finish style and animation for overlay on test screen (3 hours 45 minutes)
+    * Template information used initially
+    * Introduced ScrollView
+    * Improved animation
+
+* Began transition of overlay from test page to home screen (2 hours 15 minutes)
+    * Small View displaying information correctly
