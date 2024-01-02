@@ -4,7 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import StackNavigator from './navigation/Container';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
-import AnimatedViewOverlay from './components/animatedViewOverlay';
 import * as Font from 'expo-font'
 //import BottomTabs from './components/bottom_tabs';
 

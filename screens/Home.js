@@ -4,7 +4,6 @@ import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
 import AEDImageContainer from '../components/aed_image_container';
-import LocateIcon from '../components/locate_icon';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -175,7 +174,7 @@ const Home = ({navigation}) => {
                 setBrand(aed.Brand != null ? aed.Brand : '-');
                 setDesc(aed.Description != null ? aed.Description : '-');
                 setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
-                setImg(aed.Image != null ? aed.Image : '-');
+                setImg(aed.Image != null ? aed.Image : null);
                 return true;
             }
             return false;
@@ -272,12 +271,12 @@ const Home = ({navigation}) => {
                                 <Text key={index} style={styles.text}>{value}</Text>
                             ))}
                     </View>
-                        <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} />
+                        <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
                     </View>
                 </Animated.View>
                 {mediumVisible ? (
                     <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
-                        <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} />
+                        <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} imageObj={getImg} />
                         <ScrollView style={{flexGrow: 0, height: '60%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled}>
                             <View style={styles.mediumFullInfoContainer}>
                                 <View style={styles.subContainer}>
