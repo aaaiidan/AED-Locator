@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Image, View } from 'react-native';
 import Home from '../screens/Home';
 import HelpScreen from '../screens/Help';
@@ -70,8 +70,7 @@ const TabNavigator = () => {
                     options={({ route }) => ({ 
                         headerShown: false,
                         tabBarIcon: ({ focused }) => iconActivity({ focused, route }),
-                        tabBarShowLabel: false,
-                        
+                        tabBarShowLabel: false, 
                     })}
                 />
 
@@ -101,7 +100,6 @@ const TabNavigator = () => {
   };
 
   const HomeStackNavigator = () => {
-  
     return (
         <Stack.Navigator screenOptions={ScreenOptions} >
             <Stack.Screen 

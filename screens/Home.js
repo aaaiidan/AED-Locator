@@ -8,6 +8,8 @@ import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGes
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
+import MapViewDirections from 'react-native-maps-directions';
+import * as Location from 'expo-location';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -203,6 +205,57 @@ const Home = ({navigation}) => {
         fetchData();
     },[]);
 
+    // ==========================================
+    // =         Handling user Location         =
+    // ==========================================
+    const [userLocation, setUserLocation] = useState(null);
+    const [destination, setDestination] = useState({latitude: 55.8623699377227, longitude: -4.2456529768459})
+    const GOOGLE_MAPS_APIKEY = 'AIzaSyCOdUUIs58JDt-_CRVEBEf70hUnpH7-4tE'
+
+    const getLocation = async () => {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+            Location.watchPositionAsync(
+                {accuracy: Location.Accuracy.BestForNavigation, timeInterval: 1000 },
+                (newLocation) => {
+                    setUserLocation({
+                        latitude: newLocation.coords.latitude, 
+                        longitude: newLocation.coords.longitude
+                    });
+                }
+            );
+        }
+    };
+    useEffect(() => {
+        getLocation();
+    }, []);
+
+    const onDirectionReady = (result) => {
+        // Extract legs and steps from the result
+        const legs = result.legs || [];
+        let directions = [];
+      
+        // Iterate through each leg and its steps
+        legs.forEach((leg) => {
+          const steps = leg.steps || [];
+          steps.forEach((step) => {
+            // Check if maneuver and instruction exist before accessing
+            if (step.maneuver && step.maneuver.instruction) {
+              // Extract and log the instruction for each step
+              const instruction = step.maneuver.instruction;
+              directions.push(instruction);
+            } else {
+              // Handle the case where instruction is undefined
+              console.error('Instruction not available for a step:', step);
+            }
+          });
+        });
+      
+        // Display or use the directions as needed
+        console.log('Step-by-step Directions:', directions);
+      };
+
+
     return (
     <View style={styles.container}>
         <MapView 
@@ -233,6 +286,14 @@ const Home = ({navigation}) => {
                     </Marker>
                 );
             })}
+            <MapViewDirections
+                origin={userLocation}
+                destination={destination}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={3}
+                strokeColor="hotpink"
+                onReady={onDirectionReady}
+            />
         </MapView>
         <View style={styles.buttonContainer}>
             <TouchableOpacity  style={styles.button} >
