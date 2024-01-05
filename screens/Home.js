@@ -10,6 +10,7 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db } from '../services/firebaseConfig';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
+import LocateIcon from '../components/locate_icon';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -170,6 +171,7 @@ const Home = ({navigation}) => {
             })
         );
         setName(location.Name);
+        setDestination({latitude: location.Coordinates.Latitude, longitude: location.Coordinates.Longitude})
 
         aedData.some(aed => {
             if(aed.LocationRef.id == location.id){
@@ -208,6 +210,8 @@ const Home = ({navigation}) => {
     // ==========================================
     // =         Handling user Location         =
     // ==========================================
+    const [displayDirections, setDisplayDirections] = useState(false)
+
     const [userLocation, setUserLocation] = useState(null);
     const [destination, setDestination] = useState({latitude: 55.8623699377227, longitude: -4.2456529768459})
     const GOOGLE_MAPS_APIKEY = 'AIzaSyCOdUUIs58JDt-_CRVEBEf70hUnpH7-4tE'
@@ -234,25 +238,22 @@ const Home = ({navigation}) => {
         // Extract legs and steps from the result
         const legs = result.legs || [];
         let directions = [];
-      
         // Iterate through each leg and its steps
         legs.forEach((leg) => {
-          const steps = leg.steps || [];
-          steps.forEach((step) => {
-            // Check if maneuver and instruction exist before accessing
-            if (step.maneuver && step.maneuver.instruction) {
-              // Extract and log the instruction for each step
-              const instruction = step.maneuver.instruction;
-              directions.push(instruction);
-            } else {
-              // Handle the case where instruction is undefined
-              console.error('Instruction not available for a step:', step);
-            }
-          });
+            const steps = leg.steps || [];
+            steps.forEach((step) => {
+                console.log('steps - ', step);
+            });
+            console.log('distance 1 -', steps[0].distance.text);
+            console.log('duration 1 -', steps[0].duration.text);
+            console.log('direction 1 -', steps[0].maneuver);
         });
-      
         // Display or use the directions as needed
         console.log('Step-by-step Directions:', directions);
+      };
+
+      const startDirections = () => {
+        
       };
 
 
@@ -286,14 +287,17 @@ const Home = ({navigation}) => {
                     </Marker>
                 );
             })}
-            <MapViewDirections
+            {displayDirections ? (
+                <MapViewDirections
                 origin={userLocation}
                 destination={destination}
                 apikey={GOOGLE_MAPS_APIKEY}
                 strokeWidth={3}
                 strokeColor="hotpink"
                 onReady={onDirectionReady}
+                mode='WALKING'
             />
+            ) : null} 
         </MapView>
         <View style={styles.buttonContainer}>
             <TouchableOpacity  style={styles.button} >
@@ -327,7 +331,7 @@ const Home = ({navigation}) => {
                     </Modal>
                     <View style={styles.infoContainer}>
                         <View>
-                            <Text style={styles.name}>{getName}</Text >
+                            <Text style={styles.name}>{getName}</Text>
                             {getAddress.map((value, index) => (
                                 <Text key={index} style={styles.text}>{value}</Text>
                             ))}
@@ -442,6 +446,9 @@ const Home = ({navigation}) => {
                 <View style={styles.curvedIcon}/>
             </Animated.View>
         </PanGestureHandler>
+        <Animated.View style={[{width: '100%', height: '20%', flexDirection: 'row', backgroundColor: '#15202b', paddingTop: '5%', justifyContent: 'center', position: 'absolute',}, locateButtonStyle]}>
+            <LocateIcon style={styles.locateButton} onPress={''}/>
+        </Animated.View>
     </View>
     );
 };
@@ -449,7 +456,6 @@ const Home = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: 'flex-end',
         flexDirection: 'row',
         justifyContent: 'flex-end',
@@ -545,7 +551,7 @@ const styles = StyleSheet.create({
     mediumFullInfoContainer: {
         flexDirection: 'column',
         width: '100%',
-        marginBottom: '5%',
+        marginBottom: '3%',
       },
 
     subContainer: {
@@ -565,7 +571,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '40%',
-        height: '100%',
+        height: '60%',
         backgroundColor: '#018489',
         marginBottom: (screenHeight * 0.025),
         borderRadius: 10,
