@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, Image, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import PinIcon from '../components/pin';
+import PinIcon from '../components/touchables/pin';
 //import externalStyle from '../style/externalStyle';
 
 const screenHeight = Dimensions.get('window').height

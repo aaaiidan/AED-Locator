@@ -5,7 +5,7 @@ const AEDImageContainer = ( { style, onPress, imageObj } ) => (
     
     <TouchableOpacity style={style} onPress={onPress}>
         <Image
-        source={ imageObj != null ? imageObj.uri : require('../assets/images/placeholder_aed.png')}
+        source={ imageObj != null ? imageObj.uri : require('../../assets/images/placeholder_aed.png')}
         style={{height: '100%', width: '100%'}}
         />
     </TouchableOpacity>

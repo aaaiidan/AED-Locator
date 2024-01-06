@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { View, TouchableOpacity , Text, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
-import AEDImageContainer from '../components/aed_image_container';
+import AEDImageContainer from '../components/touchables/aed_image_container';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
-import LocateIcon from '../components/locate_icon';
+import LocateIcon from '../components/touchables/locate_icon';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -18,6 +18,7 @@ const placeholder_aed = require('../assets/images/placeholder_aed.png');
 const image = Image.resolveAssetSource(placeholder_aed);
 const closedY = 700;
 const smallOpenY = 520;
+const directionOpenY = 450;
 const mediumOpenY = 175;
 const fullOpenY = 0;
 const addressOrder = ['AddressLine1', 'City', 'Postcode']
@@ -28,6 +29,7 @@ const Home = ({navigation}) => {
     // ==========================================
     // =        Animation of overlay            =
     // ==========================================
+    const [displayDirections, setDisplayDirections] = useState(false)
 
      //Variables for gesture handling
     const translateY = useSharedValue(closedY); // Initial position below the screen
@@ -55,7 +57,7 @@ const Home = ({navigation}) => {
 			translateY.value = Math.min(closedY, Math.max(0, currentY));
 
             if (translateY.value == 0){
-                runOnJS(setScrollEnabled)(true)
+                runOnJS(setScrollEnabled)(true);
             } else {
                 runOnJS(setScrollEnabled)(false)
             }
@@ -69,6 +71,7 @@ const Home = ({navigation}) => {
 			if (event.velocityY > 1000) {
                 velocityFlag.value = true;
 				translateY.value = withTiming(closedY); // Example: Snap to maxY if the swipe velocity is high
+                runOnJS(setDisplayDirections)(false);
 			} else {
                 velocityFlag.value = false;
             }
@@ -78,19 +81,34 @@ const Home = ({navigation}) => {
 
 		  	gestureState.value = 0; // Gesture is inactive 
             if (!velocityFlag.value){
-                if ( translateY.value < 325 && translateY.value > mediumOpenY - 50) { 
-                    translateY.value = withTiming(mediumOpenY);
-                } else if ( translateY.value > 325 && translateY.value < smallOpenY){
-                    translateY.value = withTiming(smallOpenY);
-                } else if (translateY.value > smallOpenY) {
-                    translateY.value = withTiming(closedY);
-                } else if ( translateY.value < mediumOpenY - 50){
-                    translateY.value = withTiming(fullOpenY);
+                if (!displayDirections) {
+                    if (translateY.value < 325 && translateY.value > mediumOpenY - 50) {  //between 325 - 125
+                        translateY.value = withTiming(mediumOpenY);
+                    } else if (translateY.value > 325 && translateY.value < smallOpenY){ // between 520 - 325
+                        translateY.value = withTiming(smallOpenY);
+                    } else if (translateY.value < mediumOpenY - 50){ // between 125 - 0
+                        translateY.value = withTiming(fullOpenY);
+                        runOnJS(setDisplayDirections)(false);
+                    } else if (translateY.value > smallOpenY) {
+                        translateY.value = withTiming(closedY);
+                        runOnJS(setDisplayDirections)(false);
+                    }
+
+                } else {
+                    if (translateY.value <= 250) { // between 250 - 0
+                        translateY.value = withTiming(fullOpenY);
+                        runOnJS(setDisplayDirections)(false);
+                    } else if (translateY.value < directionOpenY) {
+                        translateY.value = withTiming(directionOpenY);
+                    } else if (translateY.value > directionOpenY && translateY.value < smallOpenY) {
+                        translateY.value = withTiming(closedY);
+                        runOnJS(setDisplayDirections)(false);
+                    }
                 }
             }
-
 		},
 	});
+
 
     //Starts animation of overlay
     const startAnimation = () => {
@@ -110,14 +128,21 @@ const Home = ({navigation}) => {
     });
 
     const smallViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [500, 450], [1, 0], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [500, 460], [1, 0], Extrapolate.CLAMP);
         return {
         opacity,
         };
     });
 
     const mediumViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [500, 250], [0, 1], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [450, 250], [0, 1], Extrapolate.CLAMP);
+        return {
+        opacity,
+        };
+    });
+
+    const directonViewOpacityChange = useAnimatedStyle(() => {
+        const opacity = interpolate(translateY.value, [250, directionOpenY], [0, 1], Extrapolate.CLAMP);
         return {
         opacity,
         };
@@ -129,6 +154,15 @@ const Home = ({navigation}) => {
           transform: [{ translateY: yValue }],
         };
       });
+
+      const directionViewChange = () => {
+        translateY.value = withTiming(directionOpenY , {duration:750}); // Slide up to position smallOpenY
+        markerRegion( {latitude: 55.8621133244897, longitude: -4.2423899331605615 }, {latitudeDelta: 0.01, longitudeDelta: 0.005}, 2000);
+
+        setTimeout(() => {
+            markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
+            }, 2500); 
+      };
 
     // ==========================================
     // =            Handling data               =
@@ -145,6 +179,9 @@ const Home = ({navigation}) => {
     const [getDesc, setDesc] = useState('-');
     const [getFloor, setFloor] = useState('-');
     const [getImg, setImg] = useState('-');
+
+    const [distance, setDistance] = useState(null);
+    const [maneuver, setManeuver] = useState(null);
 
 
     const loadData = async (collectionName) => {
@@ -171,7 +208,8 @@ const Home = ({navigation}) => {
             })
         );
         setName(location.Name);
-        setDestination({latitude: location.Coordinates.Latitude, longitude: location.Coordinates.Longitude})
+        setDestination(location.Coordinates);
+        console.log('after load - ', destination);
 
         aedData.some(aed => {
             if(aed.LocationRef.id == location.id){
@@ -187,8 +225,12 @@ const Home = ({navigation}) => {
     }
 
     const markerSetup = (location) => {
+
+        setDisplayDirections(false);
+        markerRegion(location.Coordinates, {latitudeDelta:0.002, longitudeDelta: 0.002}, 1000);
         formatData(location);
         startAnimation();
+
     }
 
     useEffect(() => {
@@ -210,11 +252,19 @@ const Home = ({navigation}) => {
     // ==========================================
     // =         Handling user Location         =
     // ==========================================
-    const [displayDirections, setDisplayDirections] = useState(false)
+    
 
     const [userLocation, setUserLocation] = useState(null);
-    const [destination, setDestination] = useState({latitude: 55.8623699377227, longitude: -4.2456529768459})
+    const [destination, setDestination] = useState(null)
     const GOOGLE_MAPS_APIKEY = 'AIzaSyCOdUUIs58JDt-_CRVEBEf70hUnpH7-4tE'
+
+    const [region, setRegion] = useState({
+        latitude: 55.8621133244897,
+        longitude: -4.2423899331605615,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.005,
+    });
+    const mapRef = useRef(null);
 
     const getLocation = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -230,53 +280,59 @@ const Home = ({navigation}) => {
             );
         }
     };
+
+    markerRegion = (location, delta, duration) => {
+        mapRef.current.animateToRegion({
+            ...region,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            latitudeDelta: delta.latitudeDelta,
+            longitudeDelta: delta.longitudeDelta,
+        }, duration)
+    };
+
     useEffect(() => {
         getLocation();
     }, []);
 
     const onDirectionReady = (result) => {
-        // Extract legs and steps from the result
-        const legs = result.legs || [];
-        let directions = [];
-        // Iterate through each leg and its steps
+         // Extract legs and steps from the result
+         const legs = result.legs || [];
+
+         setDistance(legs[0].steps[0].distance.text);
+         setManeuver(legs[0].steps[0].maneuver);
+
         legs.forEach((leg) => {
             const steps = leg.steps || [];
             steps.forEach((step) => {
                 console.log('steps - ', step);
             });
-            console.log('distance 1 -', steps[0].distance.text);
-            console.log('duration 1 -', steps[0].duration.text);
-            console.log('direction 1 -', steps[0].maneuver);
         });
-        // Display or use the directions as needed
-        console.log('Step-by-step Directions:', directions);
       };
 
-      const startDirections = () => {
-        
-      };
+    const startDirections = () => {
+            setDisplayDirections(true);
+            directionViewChange();
+    };
 
 
     return (
     <View style={styles.container}>
         <MapView 
             style={styles.map}
+            ref={mapRef}
             showsUserLocation={true}
-            initialRegion={{
-                latitude: 55.8621133244897,
-                longitude: -4.2423899331605615,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.005,
-            }}   
+            region={region} 
+            onRegionChangeComplete={region => setRegion(region)}
         >
             {locationData && locationData.map((location, index) => {
                 return (
                     <Marker
                         key={location.id}
-                        title={location.Name}
                         coordinate={{latitude: location.Coordinates.latitude, longitude: location.Coordinates.longitude}}
                         anchor={{ x: 0.5, y: 1 }}
                         centerOffset={{ x: 0, y: -25 }}
+                        calloutEnabled={false}
                         onPress={() => markerSetup(location)}
                     >
                         <Image 
@@ -289,14 +345,14 @@ const Home = ({navigation}) => {
             })}
             {displayDirections ? (
                 <MapViewDirections
-                origin={userLocation}
-                destination={destination}
-                apikey={GOOGLE_MAPS_APIKEY}
-                strokeWidth={3}
-                strokeColor="hotpink"
-                onReady={onDirectionReady}
-                mode='WALKING'
-            />
+                    origin={userLocation}
+                    destination={destination}
+                    apikey={GOOGLE_MAPS_APIKEY}
+                    strokeWidth={4}
+                    strokeColor="#018489"
+                    onReady={onDirectionReady}
+                    mode='WALKING'
+                />
             ) : null} 
         </MapView>
         <View style={styles.buttonContainer}>
@@ -311,6 +367,7 @@ const Home = ({navigation}) => {
         </View>
         <PanGestureHandler onGestureEvent={onGestureEvent}>
             <Animated.View style={[styles.animatedView, animatedStyle]}>
+            {!displayDirections ? (
                 <Animated.View style={[styles.smallView, smallViewOpacityChange]}>  
                     <Modal 
                         style={styles.modalImage}
@@ -329,7 +386,7 @@ const Home = ({navigation}) => {
                             style={{ width: '100%', height: image.height * ratio}}
                         />
                     </Modal>
-                    <View style={styles.infoContainer}>
+                    <View style={[styles.infoContainer, styles.infoContainerPadding]}>
                         <View>
                             <Text style={styles.name}>{getName}</Text>
                             {getAddress.map((value, index) => (
@@ -339,6 +396,7 @@ const Home = ({navigation}) => {
                         <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
                     </View>
                 </Animated.View>
+            ) : null }
                 {mediumVisible ? (
                     <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
                         <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} imageObj={getImg} />
@@ -443,11 +501,55 @@ const Home = ({navigation}) => {
                         </ScrollView>
                    </Animated.View>
                 ) : null }
+                {displayDirections ? (
+                    <Animated.View style={[styles.directionView, directonViewOpacityChange]}>
+
+                        <View style={styles.mediumFullInfoContainer}>
+                            <View style={styles.directionTitleContainer}>
+                                <View style={styles.subContainer2}>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.name}>{getName}</Text>
+                                    </View>
+                                </View>
+
+                                <View style={[styles.subContainer2, styles.directionContainerMargin]}>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.name}>{distance}</Text>
+                                    </View>
+                                </View>
+                            </View>
+
+                            <View style={styles.infoContainer}>
+                                <View style={styles.directionContainer}>
+                                    <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
+                                </View>
+
+                                <View style={[styles.directionContainer, styles.directionContainerMargin]}>
+                                <Image 
+                                    source={
+                                        maneuver == 'left' 
+                                        ? require('../assets/images/turn_left.png')
+
+                                        : maneuver == 'right' 
+                                            ? require('../assets/images/turn_right.png')
+                                            : require('../assets/images/straight_arrow.png')
+                                    }
+                                    resizeMode='contain'
+                                    style={{height: '80%', width: '80%'}}
+                                />
+                                </View>
+                            </View>
+                        </View>
+                        
+                    </Animated.View>
+                ) : null }
+
+
                 <View style={styles.curvedIcon}/>
             </Animated.View>
         </PanGestureHandler>
-        <Animated.View style={[{width: '100%', height: '20%', flexDirection: 'row', backgroundColor: '#15202b', paddingTop: '5%', justifyContent: 'center', position: 'absolute',}, locateButtonStyle]}>
-            <LocateIcon style={styles.locateButton} onPress={''}/>
+        <Animated.View style={[{width: '100%', height: '17%', flexDirection: 'row', backgroundColor: '#15202b', paddingTop: '5%', justifyContent: 'center', position: 'absolute',}, locateButtonStyle]}>
+            <LocateIcon style={styles.locateButton} onPress={startDirections}/>
         </Animated.View>
     </View>
     );
@@ -461,6 +563,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         backgroundColor: '#15202b',
     },
+
     buttonContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -468,6 +571,7 @@ const styles = StyleSheet.create({
         height: '20%',
         position: 'absolute',
     },
+
     button:{
         alignItems: 'center',
         justifyContent:'space-between',
@@ -478,8 +582,8 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         paddingLeft:'10%',
         paddingRight: '10%'
-
     },
+
     map: {
       height:'100%',
       width:'100%',
@@ -497,7 +601,6 @@ const styles = StyleSheet.create({
         position:'absolute',
     },
   
-
     smallView: {
         alignItems: 'center',
         justifyContent: 'flex-start',
@@ -513,6 +616,16 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         position:'absolute',
+    },
+
+    directionView: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        height: '19%',
+        width: '100%',
+        position:'absolute',
+        opacity: 0,
+        marginTop:(screenHeight * 0.025),
     },
   
     aedSmall: {
@@ -541,9 +654,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'row',
-        backgroundColor: '#192734',
         height: '100%' ,
         width: '100%',
+    },
+
+    infoContainerPadding: {
+        backgroundColor: '#192734',
         paddingLeft: '5%',
         paddingRight: '5%'
     },
@@ -552,6 +668,11 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         width: '100%',
         marginBottom: '3%',
+    },
+
+    directionTitleContainer: {
+        flexDirection: 'row',
+        width: '100%',
       },
 
     subContainer: {
@@ -562,22 +683,44 @@ const styles = StyleSheet.create({
         paddingLeft: 5,
     },
 
+    subContainer2: {
+        minHeight: 25,
+        width: '50%',
+        backgroundColor: '#192734',
+        marginBottom: 3,
+        paddingLeft: 5,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
     splitInfoContainer:{
         alignContent: 'center',
         width: '50%',
+    },
+
+    directionContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '50%',
+        height: '100%',
+        backgroundColor: '#192734',
+    },
+
+    directionContainerMargin: {
+        marginLeft: 3,
     },
   
     locateButton:{
         alignItems: 'center',
         justifyContent: 'center',
-        width: '40%',
+        width: '30%',
         height: '60%',
         backgroundColor: '#018489',
         marginBottom: (screenHeight * 0.025),
         borderRadius: 10,
     },
   
-      textContainer:{
+    textContainer:{
         justifyContent: 'center',
     },
   

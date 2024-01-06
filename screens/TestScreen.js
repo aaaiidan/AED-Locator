@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Modal from 'react-native-modal';
-import AEDImageContainer from '../components/aed_image_container';
-import LocateIcon from '../components/locate_icon';
+import AEDImageContainer from '../components/touchables/aed_image_container';
+import LocateIcon from '../components/touchables/locate_icon';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 
