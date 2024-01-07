@@ -76,7 +76,7 @@ const TabNavigator = () => {
 
                 <Tab.Screen 
                     name="Emergency" 
-                    component={ TestScreen } 
+                    component={ EmergencyScreen } 
                     options={({ route }) => ({ 
                         headerShown: false,
                         tabBarIcon: null,

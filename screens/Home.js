@@ -11,6 +11,7 @@ import { db } from '../services/firebaseConfig';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import LocateIcon from '../components/touchables/locate_icon';
+import haversine from 'haversine';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -29,7 +30,8 @@ const Home = ({navigation}) => {
     // ==========================================
     // =        Animation of overlay            =
     // ==========================================
-    const [displayDirections, setDisplayDirections] = useState(false)
+    const [displayDirections, setDisplayDirections] = useState(false);
+    const [lock, setlock] = useState(false);
 
      //Variables for gesture handling
     const translateY = useSharedValue(closedY); // Initial position below the screen
@@ -63,7 +65,6 @@ const Home = ({navigation}) => {
             }
 
             if(translateY.value < 500 && mediumVisible == false){
-                console.log('enable medium')
                 runOnJS(setmediumVisible)(true)
             } 
 
@@ -71,6 +72,7 @@ const Home = ({navigation}) => {
                 velocityFlag.value = true;
 				translateY.value = withTiming(closedY); // Example: Snap to maxY if the swipe velocity is high
                 runOnJS(setDisplayDirections)(false);
+                runOnJS(setlock)(false)
 			} else {
                 velocityFlag.value = false;
             }
@@ -89,20 +91,24 @@ const Home = ({navigation}) => {
                     } else if (translateY.value < mediumOpenY - 50){ // between 125 - 0
                         translateY.value = withTiming(fullOpenY);
                         runOnJS(setDisplayDirections)(false);
+                        runOnJS(setlock)(false)
                     } else if (translateY.value > smallOpenY) {
                         translateY.value = withTiming(closedY);
                         runOnJS(setDisplayDirections)(false);
+                        runOnJS(setlock)(false)
                     }
 
                 } else {
                     if (translateY.value <= 250) { // between 250 - 0
                         translateY.value = withTiming(fullOpenY);
                         runOnJS(setDisplayDirections)(false);
+                        runOnJS(setlock)(false)
                     } else if (translateY.value < directionOpenY) {
                         translateY.value = withTiming(directionOpenY);
                     } else if (translateY.value > directionOpenY && translateY.value < smallOpenY) {
                         translateY.value = withTiming(closedY);
                         runOnJS(setDisplayDirections)(false);
+                        runOnJS(setlock)(false)
                     }
                 }
             }
@@ -160,8 +166,11 @@ const Home = ({navigation}) => {
         markerRegion( {latitude: 55.8621133244897, longitude: -4.2423899331605615 }, {latitudeDelta: 0.01, longitudeDelta: 0.005}, 2000);
 
         setTimeout(() => {
+            console.log('yo')
             markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
-            }, 2500); 
+        }, 2500); 
+
+        setlock(true);
       };
 
     // ==========================================
@@ -233,14 +242,6 @@ const Home = ({navigation}) => {
 
     }
 
-    const closestMarkerSetup = (location) => {
-
-        setDisplayDirections(false);
-        markerRegion(location.Coordinates, {latitudeDelta:0.002, longitudeDelta: 0.002}, 1000);
-        formatData(location);
-        startAnimation();
-
-    }
 
     useEffect(() => {
         setRatio(screenWdidth/image.width); //Adjust enhanced image height depending on width
@@ -266,6 +267,8 @@ const Home = ({navigation}) => {
     const [userLocation, setUserLocation] = useState(null);
     const [destination, setDestination] = useState(null)
     const GOOGLE_MAPS_APIKEY = 'AIzaSyCOdUUIs58JDt-_CRVEBEf70hUnpH7-4tE'
+
+  
 
     const [region, setRegion] = useState({
         latitude: 55.8621133244897,
@@ -324,6 +327,28 @@ const Home = ({navigation}) => {
             directionViewChange();
     };
 
+    const closestAED = () => {
+        let min = Infinity;
+        let minAED = null;
+        locationData && locationData.map((location, index) => {
+            const distance = haversine(userLocation, location.Coordinates, {unit: 'meter'})
+            if(min > distance){
+                min = distance
+                minAED = location
+           }
+        })
+        markerSetup(minAED);
+    }
+
+    useEffect(() => {
+        if (userLocation && mapRef.current && lock) {
+         markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 0)
+        }
+      }, [userLocation]);
+
+
+
+
 
     return (
     <View style={styles.container}>
@@ -333,7 +358,7 @@ const Home = ({navigation}) => {
             showsUserLocation={true}
             region={region} 
             provider='google'
-            onRegionChangeComplete={region => setRegion(region)}
+            scrollEnabled={!displayDirections}
         >
             {locationData && locationData.map((location, index) => {
                 return (
@@ -353,12 +378,13 @@ const Home = ({navigation}) => {
                     </Marker>
                 );
             })}
+
             {displayDirections ? (
                 <MapViewDirections
                     origin={userLocation}
                     destination={destination}
                     apikey={GOOGLE_MAPS_APIKEY}
-                    strokeWidth={4}
+                    strokeWidth={7}
                     strokeColor="#018489"
                     onReady={onDirectionReady}
                     mode='WALKING'
@@ -366,13 +392,13 @@ const Home = ({navigation}) => {
             ) : null} 
         </MapView>
         <View style={styles.buttonContainer}>
-            <TouchableOpacity  style={styles.button} >
+            <TouchableOpacity style={styles.button} onPress={closestAED} >
                 <Image 
                     source={require('../assets/images/nearby.png')}
                     resizeMode='contain'
                     style={{height: '100%', width: '25%'}}
                 />
-                <Text style={{textAlign: 'center', color: '#FFFFFF'}}>Nearest AED</Text>
+                <Text style={styles.name}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
         <PanGestureHandler onGestureEvent={onGestureEvent}>
@@ -553,8 +579,6 @@ const Home = ({navigation}) => {
                         
                     </Animated.View>
                 ) : null }
-
-
                 <View style={styles.curvedIcon}/>
             </Animated.View>
         </PanGestureHandler>
@@ -577,9 +601,10 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flex: 1,
         justifyContent: 'center',
-        width: '55%',
+        width: '45%',
         height: '20%',
         position: 'absolute',
+        right: 5
     },
 
     button:{
@@ -591,7 +616,9 @@ const styles = StyleSheet.create({
         height: '60%',
         borderRadius: 100,
         paddingLeft:'10%',
-        paddingRight: '10%'
+        paddingRight: '10%',
+        borderWidth: 4,
+        borderColor: '#15202b',
     },
 
     map: {
