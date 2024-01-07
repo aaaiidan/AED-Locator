@@ -35,7 +35,7 @@ const Home = ({navigation}) => {
     const translateY = useSharedValue(closedY); // Initial position below the screen
     const gestureState = useSharedValue(fullOpenY);
     const velocityFlag = useSharedValue(false);
-    const [mediumVisible, setmediumVisible] = useState(true);
+    const [mediumVisible, setmediumVisible] = useState(false);
 
     //Scrollview variables
     const [scrollEnabled, setScrollEnabled] = useState(false);
@@ -63,10 +63,9 @@ const Home = ({navigation}) => {
             }
 
             if(translateY.value < 500 && mediumVisible == false){
+                console.log('enable medium')
                 runOnJS(setmediumVisible)(true)
-            } else if ( translateY.value > 500 && mediumVisible == true){
-                runOnJS(setmediumVisible)(false)
-            }
+            } 
 
 			if (event.velocityY > 1000) {
                 velocityFlag.value = true;
@@ -86,6 +85,7 @@ const Home = ({navigation}) => {
                         translateY.value = withTiming(mediumOpenY);
                     } else if (translateY.value > 325 && translateY.value < smallOpenY){ // between 520 - 325
                         translateY.value = withTiming(smallOpenY);
+                        runOnJS(setmediumVisible)(false)
                     } else if (translateY.value < mediumOpenY - 50){ // between 125 - 0
                         translateY.value = withTiming(fullOpenY);
                         runOnJS(setDisplayDirections)(false);
@@ -233,6 +233,15 @@ const Home = ({navigation}) => {
 
     }
 
+    const closestMarkerSetup = (location) => {
+
+        setDisplayDirections(false);
+        markerRegion(location.Coordinates, {latitudeDelta:0.002, longitudeDelta: 0.002}, 1000);
+        formatData(location);
+        startAnimation();
+
+    }
+
     useEffect(() => {
         setRatio(screenWdidth/image.width); //Adjust enhanced image height depending on width
 
@@ -323,6 +332,7 @@ const Home = ({navigation}) => {
             ref={mapRef}
             showsUserLocation={true}
             region={region} 
+            provider='google'
             onRegionChangeComplete={region => setRegion(region)}
         >
             {locationData && locationData.map((location, index) => {
