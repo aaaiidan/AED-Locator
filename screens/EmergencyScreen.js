@@ -100,7 +100,7 @@ const EmergencyScreen = ({navigation}) => {
                     <View style={{flex:1, position:'relative',}}>
                         
 
-                        <View style={{flex:1,  flexDirection: 'row', position:'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10}}>
+                        <View style={{flex:1,  flexDirection: 'row', position:'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1}}>
                             
                             <View style={{flex:1, marginRight: 3, justifyContent:'space-evenly' }}>
                                 <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
@@ -187,14 +187,12 @@ const EmergencyScreen = ({navigation}) => {
                         <View style={{flex:1, flexDirection: 'row',  position:'absolute', top: 0, left: 0, right: 0, bottom: 0}}>
                             <View style={{flex:1, backgroundColor: '#192734', marginRight: 3, justifyContent:'space-evenly' }}>
                             </View>
-
                             <View style={{flex:1, backgroundColor: '#192734',}}>
                            </View>
 
                         </View>
 
                     </View>
-                    
                 </>
             ) }
             
@@ -254,6 +252,7 @@ const styles = StyleSheet.create({
     textButton: {
         textAlign:'center', 
         color: 'white',
+        fontSize: RFValue(14),
     },
 
     switchEnabled: {

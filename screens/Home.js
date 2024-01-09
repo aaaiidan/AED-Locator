@@ -17,10 +17,10 @@ const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
 const placeholder_aed = require('../assets/images/placeholder_aed.png');
 const image = Image.resolveAssetSource(placeholder_aed);
-const closedY = 700;
-const smallOpenY = 520;
-const directionOpenY = 450;
-const mediumOpenY = 175;
+const closedY = (700 / 812) * screenHeight;
+const smallOpenY = (520/ 812) * screenHeight;
+const directionOpenY = (450/ 812) * screenHeight;
+const mediumOpenY = (175/ 812) * screenHeight;
 const fullOpenY = 0;
 const addressOrder = ['AddressLine1', 'City', 'Postcode']
 const openingTimesOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -64,7 +64,7 @@ const Home = ({navigation}) => {
                 runOnJS(setScrollEnabled)(false)
             }
 
-            if(translateY.value < 500 && mediumVisible == false){
+            if(translateY.value < (500/ 812) * screenHeight && mediumVisible == false){
                 runOnJS(setmediumVisible)(true)
             } 
 
@@ -83,12 +83,12 @@ const Home = ({navigation}) => {
 		  	gestureState.value = 0; // Gesture is inactive 
             if (!velocityFlag.value){
                 if (!displayDirections) {
-                    if (translateY.value < 325 && translateY.value > mediumOpenY - 50) {  //between 325 - 125
+                    if (translateY.value < (325 / 812) * screenHeight && translateY.value > mediumOpenY - (50/ 812) * screenHeight) {  //between 325 - 125
                         translateY.value = withTiming(mediumOpenY);
-                    } else if (translateY.value > 325 && translateY.value < smallOpenY){ // between 520 - 325
+                    } else if (translateY.value > (325 / 812) * screenHeight && translateY.value < smallOpenY){ // between 520 - 325
                         translateY.value = withTiming(smallOpenY);
                         runOnJS(setmediumVisible)(false)
-                    } else if (translateY.value < mediumOpenY - 50){ // between 125 - 0
+                    } else if (translateY.value < mediumOpenY - (50 / 812) * screenHeight){ // between 125 - 0
                         translateY.value = withTiming(fullOpenY);
                         runOnJS(setDisplayDirections)(false);
                         runOnJS(setlock)(false)
@@ -99,7 +99,7 @@ const Home = ({navigation}) => {
                     }
 
                 } else {
-                    if (translateY.value <= 250) { // between 250 - 0
+                    if (translateY.value <= (250 / 812) * screenHeight) { // between 250 - 0
                         translateY.value = withTiming(fullOpenY);
                         runOnJS(setDisplayDirections)(false);
                         runOnJS(setlock)(false)
@@ -134,28 +134,28 @@ const Home = ({navigation}) => {
     });
 
     const smallViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [500, 460], [1, 0], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [(500 / 812) * screenHeight, (460 / 812) * screenHeight], [1, 0], Extrapolate.CLAMP);
         return {
         opacity,
         };
     });
 
     const mediumViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [450, 250], [0, 1], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [(450/ 812) * screenHeight, (250/ 812) * screenHeight], [0, 1], Extrapolate.CLAMP);
         return {
         opacity,
         };
     });
 
     const directonViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [250, directionOpenY], [0, 1], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [(250/ 812) * screenHeight, directionOpenY], [0, 1], Extrapolate.CLAMP);
         return {
         opacity,
         };
     });
     
     const locateButtonStyle = useAnimatedStyle(() => {
-        const yValue = interpolate(translateY.value, [750, 175], [600, 0], Extrapolate.CLAMP);
+        const yValue = interpolate(translateY.value, [(750/ 812) * screenHeight, (175/ 812) * screenHeight], [600, 0], Extrapolate.CLAMP);
         return {
           transform: [{ translateY: yValue }],
         };
@@ -282,7 +282,7 @@ const Home = ({navigation}) => {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === 'granted') {
             Location.watchPositionAsync(
-                {accuracy: Location.Accuracy.BestForNavigation, timeInterval: 1000 },
+                {accuracy: Location.Accuracy.BestForNavigation, timeInterval: 100, distanceInterval: 0 },
                 (newLocation) => {
                     setUserLocation({
                         latitude: newLocation.coords.latitude, 
