@@ -8,14 +8,12 @@ import HeaderImage from '../components/touchables/header_image';
 import QuestionIcon from '../components/touchables/question_icon';
 import AEDScreen from '../screens/AEDScreen';
 import TestScreen from '../screens/TestScreen'; 
-import EmergencyModal from '../components/modals/emergency_modal';
+import EmergencyButton from '../components/touchables/emergency_button';
+import EmergencyScreen from '../screens/EmergencyScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const EmergencyScreen = () => {
-    return null;
-}
 
 const ScreenOptions = {
     headerTitle: () => <HeaderImage/>,
@@ -34,8 +32,40 @@ const customTabBarStyle = {
     }
 }
 
+const MainNavigator = () => {
+    return (
+            <Stack.Navigator initialRouteName='TabNavigator' screenOptions={ScreenOptions} >
+                <Stack.Screen 
+                    name="TabNavigator" 
+                    component = { TabNavigator } 
+                    options={({ navigation }) => ({
+                        headerRight: () => <QuestionIcon navigation={navigation}/>,
+                        title: '',
+                    })}
+                />
+                <Stack.Screen 
+                    name='Emergency' 
+                    component = { EmergencyScreen } 
+                    options={({ navigation }) => ({
+                        headerRight: () => <QuestionIcon navigation={navigation}/>,
+                        title: 'Emergency', 
+                        gestureDirection: 'vertical',
+                    })}
+                />
+                <Stack.Screen 
+                    name='Help' 
+                    component = { HelpScreen } 
+                    options={{
+                        title: 'Help', 
+                        gestureDirection: 'horizontal',
+                    }}
+                />
+            </Stack.Navigator>
+    );
+};
 
-const TabNavigator = () => {
+
+const TabNavigator = ({ navigation }) => {
 
     const iconActivity = ( { focused, route } ) => {
         return (
@@ -46,7 +76,7 @@ const TabNavigator = () => {
                             ? require('../assets/images/active_map.png') 
                             : require('../assets/images/map.png')
                         
-                        : route.name == 'List'
+                        : route.name == 'AEDList'
                             ? focused
                                 ? require('../assets/images/active_list.png') 
                                 : require('../assets/images/pin.png')
@@ -62,11 +92,11 @@ const TabNavigator = () => {
    
     return (
         <View style={{flex:1, flexDirection: 'row', alignItems: 'flex-end',  justifyContent: 'center',}}>
-            <EmergencyModal/>
-            <Tab.Navigator initialRouteName='Map'  screenOptions={customTabBarStyle}>
+            <EmergencyButton navigation={ navigation }/>
+            <Tab.Navigator screenOptions={customTabBarStyle}>
                 <Tab.Screen 
                     name="Map" 
-                    component={ HomeStackNavigator } 
+                    component={ Home } 
                     options={({ route }) => ({ 
                         headerShown: false,
                         tabBarIcon: ({ focused }) => iconActivity({ focused, route }),
@@ -75,19 +105,19 @@ const TabNavigator = () => {
                 />
 
                 <Tab.Screen 
-                    name="Emergency" 
+                    name="null" 
                     component={ EmergencyScreen } 
-                    options={({ route }) => ({ 
-                        headerShown: false,
-                        tabBarIcon: null,
-                        tabBarShowLabel: false,
-                        
-                    })}
+                    listeners={{
+                        tabPress: e => {
+                          // Prevent default action
+                          e.preventDefault();
+                        },
+                      }}
                 />
 
                 <Tab.Screen 
-                    name="List" 
-                    component={ AllAEDStackNavigator } 
+                    name="AEDList" 
+                    component={ AEDScreen } 
                     options={({ route }) => ({ 
                         headerShown: false,
                         tabBarIcon: ({ focused }) => iconActivity({ focused, route }),
@@ -99,52 +129,4 @@ const TabNavigator = () => {
     );
   };
 
-  const HomeStackNavigator = () => {
-    return (
-        <Stack.Navigator screenOptions={ScreenOptions} >
-            <Stack.Screen 
-                name="HomeScreen" 
-                component = { Home } 
-                options={({ navigation }) => ({
-                    title: 'Home', 
-                    headerRight: () => <QuestionIcon navigation={navigation}/>,
-                })}
-            />
-            <Stack.Screen 
-                name='Help' 
-                component = { HelpScreen } 
-                options={{
-                    title: 'Help', 
-                    gestureDirection: 'horizontal',
-                }}
-            />
-        </Stack.Navigator>
-    );
-};
-
-
-const AllAEDStackNavigator = () => {
-    return (
-        <Stack.Navigator screenOptions={ScreenOptions} >
-            <Stack.Screen 
-            name="AllAED" 
-            component ={ AEDScreen } 
-            options={({ navigation }) => ({
-                title: 'Home', 
-                headerRight: () => <QuestionIcon navigation={navigation}/>,
-              })}
-            />
-            <Stack.Screen 
-            name='Help' 
-            component = { HelpScreen } 
-            options={{
-                title: 'Help', 
-                gestureDirection: 'horizontal',
-            }}
-            />
-        </Stack.Navigator>
-    );
-};
-
-
-export default TabNavigator;
+export default MainNavigator;

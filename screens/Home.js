@@ -166,7 +166,7 @@ const Home = ({navigation}) => {
         markerRegion( {latitude: 55.8621133244897, longitude: -4.2423899331605615 }, {latitudeDelta: 0.01, longitudeDelta: 0.005}, 2000);
 
         setTimeout(() => {
-            console.log('yo')
+            
             markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
         }, 2500); 
 
@@ -218,7 +218,7 @@ const Home = ({navigation}) => {
         );
         setName(location.Name);
         setDestination(location.Coordinates);
-        console.log('after load - ', destination);
+       // console.log('after load - ', destination);
 
         aedData.some(aed => {
             if(aed.LocationRef.id == location.id){
@@ -230,7 +230,7 @@ const Home = ({navigation}) => {
             }
             return false;
         });
-        console.log(getBrand, getDesc, getFloor, getImg);
+       // console.log(getBrand, getDesc, getFloor, getImg);
     }
 
     const markerSetup = (location) => {
@@ -288,6 +288,7 @@ const Home = ({navigation}) => {
                         latitude: newLocation.coords.latitude, 
                         longitude: newLocation.coords.longitude
                     });
+                    console.log('expected -', newLocation)
                 }
             );
         }
@@ -317,7 +318,7 @@ const Home = ({navigation}) => {
         legs.forEach((leg) => {
             const steps = leg.steps || [];
             steps.forEach((step) => {
-                console.log('steps - ', step);
+               // console.log('steps - ', step);
             });
         });
       };
@@ -341,6 +342,7 @@ const Home = ({navigation}) => {
     }
 
     useEffect(() => {
+        console.log('saved user location -', userLocation)
         if (userLocation && mapRef.current && lock) {
          markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 0)
         }
@@ -348,6 +350,7 @@ const Home = ({navigation}) => {
 
 
 
+   
 
 
     return (
@@ -384,7 +387,7 @@ const Home = ({navigation}) => {
                     origin={userLocation}
                     destination={destination}
                     apikey={GOOGLE_MAPS_APIKEY}
-                    strokeWidth={7}
+                    strokeWidth={6}
                     strokeColor="#018489"
                     onReady={onDirectionReady}
                     mode='WALKING'

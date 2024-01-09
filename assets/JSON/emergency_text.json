@@ -1,0 +1,15 @@
+{
+    "firstParagraph": "If you or someone else is appearing to experience symptoms of a heart attack:",
+    "bulletPoints": {
+        "first": "Phone 999 immediately and ask for an ambulance if someone stops breathing, loses consciousness or doesn’t respond to stimulation.",
+        "second": "After you’ve phoned for an ambulance, the call handler will talk you through how to do chest compressions.",
+        "third": "If there’s more than one person with the patient, someone can collect a defibrillator for the patient if there’s one nearby."
+    },
+    "cpr": {
+        "first": "Kneel next to the person and place the heel of your hand on the breastbone at the centre of their chest. Place the palm of your other hand on top of the hand that's on their chest and interlock your fingers.",
+        "second": "Position yourself so your shoulders are directly above your hands.",
+        "third": "Using your body weight (not just your arms), press straight down by 5 to 6cm (2 to 2.5 inches) on their chest.",
+        "fourth": "Keeping your hands on their chest, release the compression and allow their chest to return to its original position.",
+        "fifth": "Repeat these compressions at a rate of 100 to 120 times a minute until an ambulance arrives or for as long as you can"
+    }
+}
