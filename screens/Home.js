@@ -426,7 +426,7 @@ const Home = ({navigation}) => {
                             style={{ width: '100%', height: image.height * ratio}}
                         />
                     </Modal>
-                    <View style={[styles.infoContainer, styles.infoContainerPadding]}>
+                    <View style={[styles.infoContainer, styles.infoContainerPadding, { flexWrap: 'wrap'}]}>
                         <View style={{ width: '80%'}}>
                             <Text style={styles.name}>{getName}</Text>
                             {getAddress.map((value, index) => (
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         paddingLeft:'10%',
         paddingRight: '10%',
-        borderWidth: '4%',
+        borderWidth: 4,
         borderColor: '#15202b',
     },
 
@@ -697,7 +697,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: '100%' ,
         width: '100%',
-        flexWrap: 'wrap'
     },
 
     infoContainerPadding: {

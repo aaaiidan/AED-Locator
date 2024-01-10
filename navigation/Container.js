@@ -25,7 +25,7 @@ const customTabBarStyle = {
     tabBarStyle: {
         height:'10%',
         backgroundColor: '#192734',
-        borderTopWidth: '4%',
+        borderTopWidth: 4,
         borderTopColor: '#15202b',
 
     }

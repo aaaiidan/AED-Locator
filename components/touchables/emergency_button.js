@@ -29,7 +29,7 @@ const screenWdidth = Dimensions.get('window').width;
             width: (90 / 812) * screenHeight,
             backgroundColor: '#AB1010',
             borderColor: '#15202b',
-            borderWidth: '4%',
+            borderWidth: 4,
             borderRadius: 100,
             bottom: 25,
         },

@@ -15,11 +15,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide navigation services.",
-        "NSLocationAlwaysUsageDescription": "This app requires access to your location even when closed to provide continuous navigation updates."
-      }
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
