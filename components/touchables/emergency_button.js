@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, style, View, Button, Text, TouchableOpacity, Image} from "react-native";
+import { StyleSheet, style, View, Button, Text, TouchableOpacity, Image, Dimensions} from "react-native";
+
+const screenHeight = Dimensions.get('window').height;
+const screenWdidth = Dimensions.get('window').width;
 
  EmergencyButton = ({ navigation }) => {
+
+    console.log(screenHeight, screenWdidth)
     return (
         <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Emergency')} >
@@ -20,11 +25,11 @@ import { StyleSheet, style, View, Button, Text, TouchableOpacity, Image} from "r
             justifyContent: 'center',
             position: 'absolute',
             zIndex: 1,
-            height: 90,
-            width: 90,
-            backgroundColor: 'red',
+            height: (90 / 812) * screenHeight,
+            width: (90 / 812) * screenHeight,
+            backgroundColor: '#AB1010',
             borderColor: '#15202b',
-            borderWidth: 4,
+            borderWidth: '4%',
             borderRadius: 100,
             bottom: 25,
         },

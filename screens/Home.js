@@ -12,6 +12,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import LocateIcon from '../components/touchables/locate_icon';
 import haversine from 'haversine';
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -288,7 +289,7 @@ const Home = ({navigation}) => {
                         latitude: newLocation.coords.latitude, 
                         longitude: newLocation.coords.longitude
                     });
-                    console.log('expected -', newLocation)
+                    //console.log('expected -', newLocation)
                 }
             );
         }
@@ -342,7 +343,7 @@ const Home = ({navigation}) => {
     }
 
     useEffect(() => {
-        console.log('saved user location -', userLocation)
+        //console.log('saved user location -', userLocation)
         if (userLocation && mapRef.current && lock) {
          markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 0)
         }
@@ -426,12 +427,12 @@ const Home = ({navigation}) => {
                         />
                     </Modal>
                     <View style={[styles.infoContainer, styles.infoContainerPadding]}>
-                        <View>
+                        <View style={{ width: '80%'}}>
                             <Text style={styles.name}>{getName}</Text>
                             {getAddress.map((value, index) => (
                                 <Text key={index} style={styles.text}>{value}</Text>
                             ))}
-                    </View>
+                        </View>
                         <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
                     </View>
                 </Animated.View>
@@ -585,7 +586,7 @@ const Home = ({navigation}) => {
                 <View style={styles.curvedIcon}/>
             </Animated.View>
         </PanGestureHandler>
-        <Animated.View style={[{width: '100%', height: '17%', flexDirection: 'row', backgroundColor: '#15202b', paddingTop: '5%', justifyContent: 'center', position: 'absolute',}, locateButtonStyle]}>
+        <Animated.View style={[{width: '100%', height: '17%', flexDirection: 'column', backgroundColor: '#15202b', paddingTop: '2%',justifyContent: 'flex-start', alignItems: 'center', position: 'absolute',}, locateButtonStyle]}>
             <LocateIcon style={styles.locateButton} onPress={startDirections}/>
         </Animated.View>
     </View>
@@ -620,7 +621,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         paddingLeft:'10%',
         paddingRight: '10%',
-        borderWidth: 4,
+        borderWidth: '4%',
         borderColor: '#15202b',
     },
 
@@ -696,12 +697,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: '100%' ,
         width: '100%',
+        flexWrap: 'wrap'
     },
 
     infoContainerPadding: {
         backgroundColor: '#192734',
         paddingLeft: '5%',
-        paddingRight: '5%'
+        paddingRight: '5%',
+        flexDirection: 'column'
     },
 
     mediumFullInfoContainer: {
@@ -727,7 +730,6 @@ const styles = StyleSheet.create({
         minHeight: 25,
         width: '50%',
         backgroundColor: '#192734',
-        marginBottom: 3,
         paddingLeft: 5,
         justifyContent: 'center',
         alignItems: 'center'
@@ -754,7 +756,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '30%',
-        height: '60%',
+        height: '50%',
         backgroundColor: '#018489',
         marginBottom: (screenHeight * 0.025),
         borderRadius: 10,
@@ -767,15 +769,16 @@ const styles = StyleSheet.create({
     text:{
         textAlign:'left',
         color: '#FFFFFF',
-        fontSize: 13,
+        fontSize: RFValue(14),
     },
 
     name:{
         textAlign:'left',
         color: '#FFFFFF',
-        fontSize: 13,
+        fontSize: RFValue(14),
         fontWeight: 'bold',
-        marginBottom: '2%'
+        marginBottom: '2%',
+        flexShrink: 1
     },
   
       modalImage: {

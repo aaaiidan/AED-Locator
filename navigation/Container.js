@@ -7,7 +7,6 @@ import HelpScreen from '../screens/Help';
 import HeaderImage from '../components/touchables/header_image';
 import QuestionIcon from '../components/touchables/question_icon';
 import AEDScreen from '../screens/AEDScreen';
-import TestScreen from '../screens/TestScreen'; 
 import EmergencyButton from '../components/touchables/emergency_button';
 import EmergencyScreen from '../screens/EmergencyScreen';
 
@@ -26,7 +25,7 @@ const customTabBarStyle = {
     tabBarStyle: {
         height:'10%',
         backgroundColor: '#192734',
-        borderTopWidth: 1,
+        borderTopWidth: '4%',
         borderTopColor: '#15202b',
 
     }
@@ -85,7 +84,7 @@ const TabNavigator = ({ navigation }) => {
 
                 }
                 resizeMode='contain'
-                style={{height: '90%', width: '100%', marginTop: 10}}
+                style={{height: '90%', width: '50%',  marginTop:'5%'}}
             />
         )
     }

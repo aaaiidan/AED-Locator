@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, TouchableOpacity , Text, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
+import { View, TouchableOpacity , Text, StyleSheet, Image, Dimensions, Linking } from 'react-native';
 import jsonData from '../assets/JSON/emergency_text.json'
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 //import externalStyle from '../style/externalStyle';
@@ -17,6 +17,25 @@ const EmergencyScreen = ({navigation}) => {
             setSwitchSideLeft(!switchSideLeft); 
         } 
       };
+
+    const callNumber = (phone) => {
+        let phoneNumber = phone;
+        if (Platform.OS !== 'android') {
+            phoneNumber = `telprompt:${phone}`;
+          }
+          else  {
+            phoneNumber = `tel:${phone}`;
+          }
+          Linking.canOpenURL(phoneNumber)
+          .then(supported => {
+            if (!supported) {
+              Alert.alert('Phone number is not available');
+            } else {
+              return Linking.openURL(phoneNumber);
+            }
+          })
+          .catch(err => console.log(err));
+    }
 
     return (
         <View style={styles.container}>
@@ -67,7 +86,9 @@ const EmergencyScreen = ({navigation}) => {
                     </View>
 
                     <View style={[styles.subContainer2, { marginBottom: '5%', height: '15%', padding: '5%', }]}>
-                        <TouchableOpacity style={{height: '100%', width: '100%', backgroundColor: '#018489', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}> 
+                        <TouchableOpacity style={{height: '100%', width: '100%', backgroundColor: '#018489', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}} 
+                        onPress={() => callNumber(0)}
+                        > 
                             <Image 
                                 source={ require('../assets/images/phone.png') }
                                 resizeMode='contain'
@@ -82,7 +103,9 @@ const EmergencyScreen = ({navigation}) => {
                     </View>
 
                     <View style={[styles.subContainer2, { marginBottom: '5%', height: '15%', padding: '5%', }]}>
-                        <TouchableOpacity style={{height: '100%', width: '100%', backgroundColor: '#AB1010', borderRadius: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}> 
+                        <TouchableOpacity style={{height: '100%', width: '100%', backgroundColor: '#AB1010', borderRadius: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}
+                        onPress={() => callNumber(0)}
+                        > 
                             <Image 
                                 source={ require('../assets/images/phone.png') }
                                 resizeMode='contain'
@@ -104,8 +127,8 @@ const EmergencyScreen = ({navigation}) => {
                             
                             <View style={{flex:1, marginRight: 3, justifyContent:'space-evenly' }}>
                                 <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row',}}>
-                                        <Text style={styles.cprText}>1.</Text>
+                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
+                                        <Text style={styles.cprText}>1. </Text>
                                         <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.first}</Text>
                                     </View>
 
@@ -119,8 +142,8 @@ const EmergencyScreen = ({navigation}) => {
                                 </View>
 
                                 <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row',}}>
-                                        <Text style={styles.cprText}>2.</Text>
+                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
+                                        <Text style={styles.cprText}>2. </Text>
                                         <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.second}</Text>
                                     </View>
 
@@ -134,8 +157,8 @@ const EmergencyScreen = ({navigation}) => {
                                 </View>
 
                                 <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row',}}>
-                                        <Text style={styles.cprText}>3.</Text>
+                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>  
+                                        <Text style={styles.cprText}>3. </Text>
                                         <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.third}</Text>
                                     </View>
 
@@ -149,8 +172,8 @@ const EmergencyScreen = ({navigation}) => {
                                 </View>
 
                                 <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row',}}>
-                                        <Text style={styles.cprText}>4.</Text>
+                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
+                                        <Text style={styles.cprText}>4. </Text>
                                         <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.fourth}</Text>
                                     </View>
 
@@ -164,8 +187,8 @@ const EmergencyScreen = ({navigation}) => {
                                 </View>
 
                                 <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row',}}>
-                                        <Text style={styles.cprText}>5.</Text>
+                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
+                                        <Text style={styles.cprText}>5. </Text>
                                         <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.fifth}</Text>
                                     </View>
 
