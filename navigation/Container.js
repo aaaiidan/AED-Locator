@@ -25,9 +25,10 @@ const customTabBarStyle = {
     tabBarStyle: {
         height:'10%',
         backgroundColor: '#192734',
-        borderTopWidth: 4,
+        borderTopWidth: Platform.OS === 'ios' ? 4 : 6,
         borderTopColor: '#15202b',
-
+        paddingBottom: '2%',
+        paddingTop: '2%',
     }
 }
 
@@ -84,7 +85,7 @@ const TabNavigator = ({ navigation }) => {
 
                 }
                 resizeMode='contain'
-                style={{height: '90%', width: '50%',  marginTop:'5%'}}
+                style={{height: '100%', width: '100%'}}
             />
         )
     }
@@ -106,6 +107,9 @@ const TabNavigator = ({ navigation }) => {
                 <Tab.Screen 
                     name="null" 
                     component={ EmergencyScreen } 
+                    options={{
+                        tabBarIcon: () => null,
+                    }}
                     listeners={{
                         tabPress: e => {
                           // Prevent default action

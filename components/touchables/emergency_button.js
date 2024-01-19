@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, style, View, Button, Text, TouchableOpacity, Image, Dimensions} from "react-native";
+import { StyleSheet, style, View, Button, Text, TouchableOpacity, Image, Dimensions, Platform} from "react-native";
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -29,9 +29,9 @@ const screenWdidth = Dimensions.get('window').width;
             width: (90 / 812) * screenHeight,
             backgroundColor: '#AB1010',
             borderColor: '#15202b',
-            borderWidth: 4,
+            borderWidth: Platform.OS === 'ios' ? 4 : 6,
             borderRadius: 100,
-            bottom: 25,
+            bottom: (screenHeight/100) * 3
         },
 
         button: {

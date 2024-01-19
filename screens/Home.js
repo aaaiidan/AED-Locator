@@ -95,6 +95,7 @@ const Home = ({navigation}) => {
                         runOnJS(setlock)(false)
                     } else if (translateY.value > smallOpenY) {
                         translateY.value = withTiming(closedY);
+                        runOnJS(setmediumVisible)(false)
                         runOnJS(setDisplayDirections)(false);
                         runOnJS(setlock)(false)
                     }
@@ -108,6 +109,7 @@ const Home = ({navigation}) => {
                         translateY.value = withTiming(directionOpenY);
                     } else if (translateY.value > directionOpenY && translateY.value < smallOpenY) {
                         translateY.value = withTiming(closedY);
+                        runOnJS(setmediumVisible)(false)
                         runOnJS(setDisplayDirections)(false);
                         runOnJS(setlock)(false)
                     }
@@ -405,7 +407,7 @@ const Home = ({navigation}) => {
                 <Text style={styles.name}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
-        <PanGestureHandler onGestureEvent={onGestureEvent}>
+        <PanGestureHandler onGestureEvent={onGestureEvent} activeOffsetX={[-10, 10]}>
             <Animated.View style={[styles.animatedView, animatedStyle]}>
             {!displayDirections ? (
                 <Animated.View style={[styles.smallView, smallViewOpacityChange]}>  
@@ -440,7 +442,7 @@ const Home = ({navigation}) => {
                 {mediumVisible ? (
                     <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
                         <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} imageObj={getImg} />
-                        <ScrollView style={{flexGrow: 0, height: '60%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled}>
+                        <ScrollView style={{flexGrow: 0, height: '60%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
                             <View style={styles.mediumFullInfoContainer}>
                                 <View style={styles.subContainer}>
                                     <View style={styles.textContainer}>
