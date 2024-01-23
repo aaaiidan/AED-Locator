@@ -14,7 +14,6 @@ const HeaderWithInfo = ({title, text, children}) => {
             </View>
 
             <View style={styles.textContainer}>
-                <Text style={styles.text}>{text}</Text>
                 {children}
             </View>
         </View>  

@@ -1,0 +1,45 @@
+{
+    "home": {
+        "header_with_info": [
+            {
+            "title": "Home Screen",
+            "info": [
+                {
+                    "type": "text",
+                    "content": [
+                        "When you are initially loaded into the app, you will be presented with the home screen. Within this screen is a \"Google Maps\" display with pins of every AED on the campus of \"The University of Strathclyde\".",
+                        "The home screen is indicated by the map icon in the bottom left of the navbar:"
+                    ]
+                },
+                {
+                    "type": "image",
+                    "content": [
+                        
+                    ]
+                },
+                {
+                    "type": "text",
+                    "content": ""
+                },
+                {
+                    "type": "text",
+                    "content": ""
+                }
+            ]
+            },
+            {
+
+            }
+        ]
+                     
+    },
+        
+
+    "cpr": {
+        "first": "Kneel next to the person and place the heel of your hand on the breastbone at the centre of their chest. Place the palm of your other hand on top of the hand that's on their chest and interlock your fingers.",
+        "second": "Position yourself so your shoulders are directly above your hands.",
+        "third": "Using your body weight (not just your arms), press straight down by 5 to 6cm (2 to 2.5 inches) on their chest.",
+        "fourth": "Keeping your hands on their chest, release the compression and allow their chest to return to its original position.",
+        "fifth": "Repeat these compressions at a rate of 100 to 120 times a minute until an ambulance arrives or for as long as you can"
+    }
+}

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         width:'100%',
-        height: '20%',
+        height: screenHeight/7,
         backgroundColor: '#192734',
         marginBottom: '2%',
         padding:'2.5%'
