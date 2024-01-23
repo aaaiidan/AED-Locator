@@ -9,6 +9,8 @@ import QuestionIcon from '../components/touchables/question_icon';
 import AEDScreen from '../screens/AEDScreen';
 import EmergencyButton from '../components/touchables/emergency_button';
 import EmergencyScreen from '../screens/EmergencyScreen';
+import PinsAndAEDs from '../screens/help/PinsAndAEDS';
+import HomeAndMap from '../screens/help/HomeAndMap';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -57,6 +59,22 @@ const MainNavigator = () => {
                     component = { HelpScreen } 
                     options={{
                         title: 'Help', 
+                        gestureDirection: 'horizontal',
+                    }}
+                />
+                <Stack.Screen 
+                    name='HelpPins' 
+                    component = { PinsAndAEDs } 
+                    options={{
+                        title: 'Pins and AEDs', 
+                        gestureDirection: 'horizontal',
+                    }}
+                />
+                <Stack.Screen 
+                    name='HelpMap' 
+                    component = { HomeAndMap } 
+                    options={{
+                        title: 'Home/Map', 
                         gestureDirection: 'horizontal',
                     }}
                 />

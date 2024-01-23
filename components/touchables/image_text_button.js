@@ -4,15 +4,14 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 
 const screenHeight = Dimensions.get('window').height
 
-const ImageTextButton = ({onPress, style, image, text}) => {
-    
+const ImageTextButton = ({navigation, screen, image, text}) => {
     
     return (
-        <TouchableOpacity style={styles.ImageTextContainer}>
+        <TouchableOpacity style={styles.ImageTextContainer} onPress={() => navigation.navigate(screen)}>
             <Image
                 source={image}
                 resizeMode='contain'
-                style={{width:'50%', height: '100%' }}
+                style={{ width: '33%', height: '100%' }}
             />
             <Text style={styles.text}>
                 {text}
@@ -36,11 +35,12 @@ const styles = StyleSheet.create({
     },
 
     text:{
+        flex: 1,
         textAlign:'right',
         color: '#FFFFFF',
-        fontSize: RFValue(20),
+        fontSize: RFValue(24),
         fontWeight: 'bold',
-        flexShrink: 1
+      
     },
 
     });

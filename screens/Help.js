@@ -14,10 +14,14 @@ return (
             <ImageTextButton
                 image={require('../assets/images/pin.png')}
                 text={'Pins and AEDS'}
+                navigation={navigation}
+                screen={'HelpPins'}
             />
             <ImageTextButton
                 image={require('../assets/images/map.png')}
                 text={'Home/Map'}
+                navigation={navigation}
+                screen={'HelpMap'}
             />
             <ImageTextButton
                 image={require('../assets/images/cpr.png')}
