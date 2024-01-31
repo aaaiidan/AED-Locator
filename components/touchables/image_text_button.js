@@ -1,19 +1,30 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 
 const screenHeight = Dimensions.get('window').height
 
-const ImageTextButton = ({navigation, screen, image, text}) => {
+
+
+
+const ImageTextButton = ({navigation, screen, action, image, text, imageStyle, textStyle}) => {
+
+
+
+
     
     return (
-        <TouchableOpacity style={styles.ImageTextContainer} onPress={() => navigation.navigate(screen)}>
-            <Image
-                source={image}
-                resizeMode='contain'
-                style={{ width: '33%', height: '100%' }}
-            />
-            <Text style={styles.text}>
+        <TouchableOpacity style={styles.ImageTextContainer} onPress={() => navigation.navigate(screen, {action: action})} >
+            <View style={{height: '100%', aspectRatio:1, borderRadius: 100,
+        borderWidth:  2,
+        borderRadius: 100,
+        borderColor: '#FFFFFF',  overflow: 'hidden',}}>
+                <Image
+                    source={image}
+                    style={imageStyle}
+                />
+            </View>
+            <Text style={styles.text} numberOfLines={1}>
                 {text}
             </Text>
 
@@ -38,9 +49,8 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign:'right',
         color: '#FFFFFF',
-        fontSize: RFValue(24),
         fontWeight: 'bold',
-      
+        fontSize: RFValue(20),
     },
 
     });

@@ -13,6 +13,7 @@ import * as Location from 'expo-location';
 import LocateIcon from '../components/touchables/locate_icon';
 import haversine from 'haversine';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import { useData } from '../DataContext';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -26,7 +27,22 @@ const fullOpenY = 0;
 const addressOrder = ['AddressLine1', 'City', 'Postcode']
 const openingTimesOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-const Home = ({navigation}) => {
+const Home = ({navigation, route}) => {
+
+    useEffect(() => {
+        if (route.params && route.params.action) {
+            markerSetup(route.params.action)
+        } 
+      }, [route.params]);
+
+    useEffect(() => {
+        // Check the params to determine which function to run
+        if (route.params?.action === 'function1') {
+          // Run function 1
+        } else if (route.params?.action === 'function2') {
+          // Run function 2
+        }
+      }, [route.params]);
 
     // ==========================================
     // =        Animation of overlay            =
@@ -225,6 +241,7 @@ const Home = ({navigation}) => {
 
         aedData.some(aed => {
             if(aed.LocationRef.id == location.id){
+                console.log('111111111111111', aed.LocationRef);
                 setBrand(aed.Brand != null ? aed.Brand : '-');
                 setDesc(aed.Description != null ? aed.Description : '-');
                 setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
@@ -407,7 +424,7 @@ const Home = ({navigation}) => {
                 <Text style={styles.name}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
-        <PanGestureHandler onGestureEvent={onGestureEvent} activeOffsetX={[-10, 10]}>
+        <PanGestureHandler onGestureEvent={onGestureEvent} >
             <Animated.View style={[styles.animatedView, animatedStyle]}>
             {!displayDirections ? (
                 <Animated.View style={[styles.smallView, smallViewOpacityChange]}>  
