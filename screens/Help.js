@@ -16,18 +16,21 @@ return (
                 text={'Home/Map'}
                 navigation={navigation}
                 screen={'HelpMap'}
+                imageStyle={{width:'33%', height: '100%'}}
             />
             <ImageTextButton
                 image={require('../assets/images/pin.png')}
                 text={'Pins and AEDS'}
                 navigation={navigation}
                 screen={'HelpPins'}
+                imageStyle={{width:'33%', height: '100%'}}
             />
             <ImageTextButton
                 image={require('../assets/images/emergency.png')}
                 text={'Emergency'}
                 navigation={navigation}
                 screen={'HelpEmergency'}
+                imageStyle={{width:'33%', height: '100%'}}
             />
         </ScrollView>
     </View>

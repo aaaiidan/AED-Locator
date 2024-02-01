@@ -25,7 +25,7 @@ const AEDScreen = ({navigation}) => {
                         }
                     });
                     return(
-                        <ImageTextButton image={img} imageStyle={styles.imageStyle} text={location.Name} textStyle={styles.text} navigation={navigation} screen={'Map'} action={location}/>
+                        <ImageTextButton key={location.id} image={img} imageStyle={styles.imageStyle} text={location.Name} textStyle={styles.text} navigation={navigation} screen={'Map'} action={location} circle={true}/>
                     )
                 })}
             </ScrollView>

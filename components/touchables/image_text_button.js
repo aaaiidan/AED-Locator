@@ -7,23 +7,25 @@ const screenHeight = Dimensions.get('window').height
 
 
 
-const ImageTextButton = ({navigation, screen, action, image, text, imageStyle, textStyle}) => {
+const ImageTextButton = ({navigation, screen, action, image, text, imageStyle, textStyle, circle = false}) => {
 
-
-
-
-    
     return (
         <TouchableOpacity style={styles.ImageTextContainer} onPress={() => navigation.navigate(screen, {action: action})} >
-            <View style={{height: '100%', aspectRatio:1, borderRadius: 100,
-        borderWidth:  2,
-        borderRadius: 100,
-        borderColor: '#FFFFFF',  overflow: 'hidden',}}>
+            {circle ? (
+                <View style={{height: '100%', aspectRatio:1, borderRadius: 100, borderWidth:  2, borderRadius: 100, borderColor: '#FFFFFF',  overflow: 'hidden',}}>
+                    <Image
+                        source={image}
+                        style={imageStyle}
+                    />
+                </View>
+
+            ):( 
                 <Image
                     source={image}
+                    resizeMode='contain'
                     style={imageStyle}
                 />
-            </View>
+            )}
             <Text style={styles.text} numberOfLines={1}>
                 {text}
             </Text>
