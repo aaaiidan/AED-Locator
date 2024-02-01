@@ -13,7 +13,7 @@ import * as Location from 'expo-location';
 import LocateIcon from '../components/touchables/locate_icon';
 import haversine from 'haversine';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { useData } from '../DataContext';
+import HeaderWithInfo from '../components/presentation/header_with_info';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -28,21 +28,6 @@ const addressOrder = ['AddressLine1', 'City', 'Postcode']
 const openingTimesOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 const Home = ({navigation, route}) => {
-
-    useEffect(() => {
-        if (route.params && route.params.action) {
-            markerSetup(route.params.action)
-        } 
-      }, [route.params]);
-
-    useEffect(() => {
-        // Check the params to determine which function to run
-        if (route.params?.action === 'function1') {
-          // Run function 1
-        } else if (route.params?.action === 'function2') {
-          // Run function 2
-        }
-      }, [route.params]);
 
     // ==========================================
     // =        Animation of overlay            =
@@ -191,6 +176,12 @@ const Home = ({navigation, route}) => {
 
         setlock(true);
       };
+
+      useEffect(() => {
+        if (route.params && route.params.action) {
+            markerSetup(route.params.action)
+        } 
+      }, [route.params]);
 
     // ==========================================
     // =            Handling data               =
@@ -459,104 +450,50 @@ const Home = ({navigation, route}) => {
                 {mediumVisible ? (
                     <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
                         <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} imageObj={getImg} />
-                        <ScrollView style={{flexGrow: 0, height: '60%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
-                            <View style={styles.mediumFullInfoContainer}>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Name</Text>
-                                    </View>
-                                </View>
+                        <ScrollView style={{flexGrow: 0, height: '60%', width: '100%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
 
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.text}>{getName}</Text>
-                                    </View>
-                                </View>
-                            </View>
 
-                            <View style={styles.mediumFullInfoContainer}>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Address</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                            <Text style={styles.name}>Address</Text>
-                                            <Text style={styles.text}>{getName}</Text>
-                                            {getAddress.map((value, index) => (
-                                                <Text key={index} style={styles.text}>{value}</Text>
-                                            ))}
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                            <Text style={styles.name}>Floor</Text>
-                                            <Text style={styles.text}>{getFloor}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.mediumFullInfoContainer}>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Opening Times</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                            <Text style={styles.name}>Day</Text>
-                                            <Text style={styles.text}>Monday</Text>
-                                            <Text style={styles.text}>Tuesday</Text>
-                                            <Text style={styles.text}>Wednesday</Text>
-                                            <Text style={styles.text}>Thursday</Text>
-                                            <Text style={styles.text}>Friday</Text>
-                                            <Text style={styles.text}>Saturday</Text>
-                                            <Text style={styles.text}>Sunday</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.splitInfoContainer}> 
-                                        <View style={styles.textContainer}>
-                                            <Text style={styles.name}></Text>
-                                            {getOpeningTimes.map((value, index) => (
-                                                <Text key={index} style={styles.text}>{value}</Text>
-                                            ))}
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.mediumFullInfoContainer}>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Description</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.text}>{getDesc}</Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.mediumFullInfoContainer}>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>Brand</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.subContainer}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.text}>{getBrand}</Text>
-                                    </View>
-                                </View>
-                            </View>
+                            <HeaderWithInfo title={'Name'}>
+                                <Text style={styles.text}>{getName}</Text>
+                            </HeaderWithInfo>
                            
+                            <HeaderWithInfo title={'Address'} split={true}>
+                                <> 
+                                    <Text style={styles.name}>Address</Text>
+                                    <Text style={styles.text}>{getName}</Text>
+                                    {getAddress.map((value, index) => (
+                                        <Text key={index} style={styles.text}>{value}</Text>
+                                    ))}
+                                </>
+                                <> 
+                                    <Text style={styles.name}>Floor</Text>
+                                    <Text style={styles.text}>{getFloor}</Text>
+                                </>
+                            </HeaderWithInfo>
+
+                            <HeaderWithInfo title={'Opening Times'} split={true}>
+                                <> 
+                                    <Text style={styles.name}>Day</Text>
+                                    {openingTimesOrder.map((value, index) => (
+                                        <Text key={index} style={styles.text}>{value}</Text>
+                                    ))}
+                                </>
+                                <> 
+                                    <Text style={styles.name}></Text>
+                                    {getOpeningTimes.map((value, index) => (
+                                        <Text key={index} style={styles.text}>{value}</Text>
+                                    ))}
+                                </>
+                            </HeaderWithInfo>
+
+                            <HeaderWithInfo title={'Description'}>
+                                <Text style={styles.text}>{getDesc}</Text>
+                            </HeaderWithInfo>
+
+                            <HeaderWithInfo title={'Brand'}>
+                                <Text style={styles.text}>{getBrand}</Text>
+                            </HeaderWithInfo>
+                            
                         </ScrollView>
                    </Animated.View>
                 ) : null }
