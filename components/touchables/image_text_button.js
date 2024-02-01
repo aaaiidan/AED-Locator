@@ -12,7 +12,7 @@ const ImageTextButton = ({navigation, screen, action, image, text, imageStyle, t
     return (
         <TouchableOpacity style={styles.ImageTextContainer} onPress={() => navigation.navigate(screen, {action: action})} >
             {circle ? (
-                <View style={{height: '100%', aspectRatio:1, borderRadius: 100, borderWidth:  2, borderRadius: 100, borderColor: '#FFFFFF',  overflow: 'hidden',}}>
+                <View style={{height: '100%', aspectRatio:1, borderRadius: 100, borderWidth:  2,  borderColor: '#FFFFFF',  overflow: 'hidden',}}>
                     <Image
                         source={image}
                         style={imageStyle}

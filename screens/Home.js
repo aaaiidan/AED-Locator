@@ -19,15 +19,29 @@ const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
 const placeholder_aed = require('../assets/images/placeholder_aed.png');
 const image = Image.resolveAssetSource(placeholder_aed);
-const closedY = (700 / 812) * screenHeight;
-const smallOpenY = (520/ 812) * screenHeight;
-const directionOpenY = (450/ 812) * screenHeight;
-const mediumOpenY = (175/ 812) * screenHeight;
-const fullOpenY = 0;
 const addressOrder = ['AddressLine1', 'City', 'Postcode']
 const openingTimesOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 const Home = ({navigation, route}) => {
+    const [containerHeight, setContainerHeight] = useState(screenHeight);
+
+    const onContainerLayout = (event) => {
+        const { height } = event.nativeEvent.layout;
+        setContainerHeight(height);
+        console.log(containerHeight)
+    }
+
+    const closedY = (100 / 100) * containerHeight; //0% of screen
+
+    const minSmallY = (90/100) * containerHeight; //10% of screen
+    const smallOpenY = (80/ 100) * containerHeight; //20% of screen
+    const maxSmallY = (60/100) * containerHeight; //40% of screen
+
+    const mediumOpenY = (40/ 100) * containerHeight; //60% of screen
+
+    const directionOpenY = (60/ 100) * containerHeight;
+
+    const fullOpenY = 0; //100% of screen
 
     // ==========================================
     // =        Animation of overlay            =
@@ -37,6 +51,7 @@ const Home = ({navigation, route}) => {
 
      //Variables for gesture handling
     const translateY = useSharedValue(closedY); // Initial position below the screen
+    const previousTranslateY = useSharedValue(closedY);
     const gestureState = useSharedValue(fullOpenY);
     const velocityFlag = useSharedValue(false);
     const [mediumVisible, setmediumVisible] = useState(false);
@@ -48,10 +63,13 @@ const Home = ({navigation, route}) => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [ratio, setRatio] = useState(0);
 
+    const [isPositive, setIsPositive] = useState(true);
+
      // Function to handle swiping animation
      const onGestureEvent = useAnimatedGestureHandler({
 		onStart: (_, ctx) => {
 		  	ctx.startY = translateY.value; // ctx is object that stores phases of gesture (y value)
+            ctx.lastDirectionChangeY = 0;
 		  	gestureState.value = 1; // Gesture is active 
             
             
@@ -70,6 +88,7 @@ const Home = ({navigation, route}) => {
                 runOnJS(setmediumVisible)(true)
             } 
 
+
 			if (event.velocityY > 1000) {
                 velocityFlag.value = true;
 				translateY.value = withTiming(closedY); // Example: Snap to maxY if the swipe velocity is high
@@ -78,28 +97,38 @@ const Home = ({navigation, route}) => {
 			} else {
                 velocityFlag.value = false;
             }
+
+            
+            if (previousTranslateY.value > translateY.value){
+                runOnJS(setIsPositive)(true);
+            } else if (previousTranslateY.value < translateY.value) {
+                runOnJS(setIsPositive)(false);
+            }
+
+            if(translateY.value !== previousTranslateY.value){
+                previousTranslateY.value = translateY.value
+            }
+
 			
 		},
-		onEnd: () => {
+		onEnd: (_, ctx) => {
 
 		  	gestureState.value = 0; // Gesture is inactive 
+            ctx.lastDirectionChangeY = translateY.value;
             if (!velocityFlag.value){
                 if (!displayDirections) {
-                    if (translateY.value < (325 / 812) * screenHeight && translateY.value > mediumOpenY - (50/ 812) * screenHeight) {  //between 325 - 125
-                        translateY.value = withTiming(mediumOpenY);
-                    } else if (translateY.value > (325 / 812) * screenHeight && translateY.value < smallOpenY){ // between 520 - 325
-                        translateY.value = withTiming(smallOpenY);
-                        runOnJS(setmediumVisible)(false)
-                    } else if (translateY.value < mediumOpenY - (50 / 812) * screenHeight){ // between 125 - 0
-                        translateY.value = withTiming(fullOpenY);
-                        runOnJS(setDisplayDirections)(false);
-                        runOnJS(setlock)(false)
-                    } else if (translateY.value > smallOpenY) {
+                    if(translateY.value > (85/100) * containerHeight){ // 85% to 100%
                         translateY.value = withTiming(closedY);
-                        runOnJS(setmediumVisible)(false)
-                        runOnJS(setDisplayDirections)(false);
-                        runOnJS(setlock)(false)
+                    } else if(translateY.value >= (60/100) * containerHeight && translateY.value < (85/100) * containerHeight){ //60% to 85%
+                        translateY.value = withTiming(smallOpenY);
+                    } else if (translateY.value < (60/100) * containerHeight && isPositive){ //less than 60% && postive
+                        translateY.value = withTiming(fullOpenY);
+                    } else if (translateY.value > (30/100) * containerHeight && !isPositive){ //less than 80% && negative direction
+                        translateY.value = withTiming(smallOpenY);
+                    } else {  
+                        translateY.value = withTiming(fullOpenY);
                     }
+
 
                 } else {
                     if (translateY.value <= (250 / 812) * screenHeight) { // between 250 - 0
@@ -138,7 +167,7 @@ const Home = ({navigation, route}) => {
     });
 
     const smallViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [(500 / 812) * screenHeight, (460 / 812) * screenHeight], [1, 0], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [(500 / 812) * screenHeight, (460 / 812) * screenHeight], [1, 1], Extrapolate.CLAMP);
         return {
         opacity,
         };
@@ -182,6 +211,10 @@ const Home = ({navigation, route}) => {
             markerSetup(route.params.action)
         } 
       }, [route.params]);
+
+
+
+
 
     // ==========================================
     // =            Handling data               =
@@ -365,7 +398,7 @@ const Home = ({navigation, route}) => {
 
 
     return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onContainerLayout}>
         <MapView 
             style={styles.map}
             ref={mapRef}
@@ -436,18 +469,24 @@ const Home = ({navigation, route}) => {
                             style={{ width: '100%', height: image.height * ratio}}
                         />
                     </Modal>
-                    <View style={[styles.infoContainer, styles.infoContainerPadding, { flexWrap: 'wrap'}]}>
-                        <View style={{ width: '80%'}}>
+
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width:'100%', height:'100%', backgroundColor: 'green', padding:'2.5%'}}>
+                        <View style={{flex: 1}}>
                             <Text style={styles.name}>{getName}</Text>
                             {getAddress.map((value, index) => (
-                                <Text key={index} style={styles.text}>{value}</Text>
+                                    <Text key={index} style={styles.text}>{value}</Text>
                             ))}
                         </View>
                         <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
                     </View>
+                    
+
+                    
+
+
                 </Animated.View>
             ) : null }
-                {mediumVisible ? (
+                {1==2 ? (
                     <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
                         <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} imageObj={getImg} />
                         <ScrollView style={{flexGrow: 0, height: '60%', width: '100%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
@@ -493,7 +532,7 @@ const Home = ({navigation, route}) => {
                             <HeaderWithInfo title={'Brand'}>
                                 <Text style={styles.text}>{getBrand}</Text>
                             </HeaderWithInfo>
-                            
+
                         </ScrollView>
                    </Animated.View>
                 ) : null }
@@ -591,20 +630,21 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         height: '100%',
         width: '100%',
-        backgroundColor: '#15202b',
+        backgroundColor: 'red',
         paddingLeft: (screenHeight * 0.0125),
         paddingRight: (screenHeight * 0.0125),
-        paddingBottom: (screenHeight * 0.0125),
         position:'absolute',
     },
   
     smallView: {
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        height: '14%',
-        width: '100%',
-        position:'absolute',
-        marginTop:(screenHeight * 0.025) ,
+        paddingBottom: (screenHeight * 0.0125),
+        paddingTop: (screenHeight * 0.0125),
+        flexDirection: 'column', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-end', 
+        width:'100%', 
+        height:'20%' , 
+        backgroundColor: 'blue'
     },
 
     mediumView: {
@@ -626,14 +666,12 @@ const styles = StyleSheet.create({
     },
   
     aedSmall: {
-        height: '80%',
+        height: '100%',
         aspectRatio: 1,
         borderRadius: 100,
         overflow: 'hidden',
         borderColor: '#FFFFFF',
         borderWidth: 2,
-        marginTop: '5%',
-        marginBottom: '5%',
     },
 
     aedMedium: {
@@ -733,7 +771,7 @@ const styles = StyleSheet.create({
         fontSize: RFValue(14),
         fontWeight: 'bold',
         marginBottom: '2%',
-        flexShrink: 1
+        
     },
   
       modalImage: {
@@ -743,7 +781,6 @@ const styles = StyleSheet.create({
       },
 
     curvedIcon: {
-        marginBottom:(screenHeight * 0.025),
         marginTop:((screenHeight * 0.0125) /2 ) - 2 ,
         backgroundColor: '#FFFFFF',
         width: 50,
