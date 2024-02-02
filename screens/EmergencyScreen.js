@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
-import { View, TouchableOpacity , Text, StyleSheet, Image, Dimensions, Linking } from 'react-native';
+import { View, ScrollView, TouchableOpacity , Text, StyleSheet, Image, Dimensions, Linking } from 'react-native';
 import jsonData from '../assets/JSON/emergency_text.json'
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import HeaderWithSplitInfo from '../components/presentation/header_with_split_info';
+import HeaderWithInfo from '../components/presentation/header_with_info';
 //import externalStyle from '../style/externalStyle';
 
 const screenHeight = Dimensions.get('window').height
@@ -59,15 +61,11 @@ const EmergencyScreen = ({navigation}) => {
 
             </View>
             {switchSideLeft ? (
-                <>
-                    <View style={styles.subContainer2}>
-                        <Text style={styles.name}>What to do in a heart emergency</Text>
-                    </View>
+                <ScrollView>
 
-                    <View style={[styles.subContainer2, { marginBottom: '5%', height: '45%'}]}>
-                        <Text style={[styles.text, {marginVertical: '5%', width: '90%', textAlign: 'center'}]}>{jsonData.firstParagraph}</Text>
-
-                        <View style={{width: '80%', alignItems: 'flex-start', flexDirection: 'row', marginBottom: '2%',}}>
+                <HeaderWithInfo title={'What to do in a heart emergency'}>
+                    <Text style={[styles.text, {marginVertical: '5%', width: '90%', textAlign: 'center'}]}>{jsonData.firstParagraph}</Text>
+                    <View style={{width: '80%', alignItems: 'flex-start', flexDirection: 'row', marginBottom: '2%',}}>
                             <Text style={styles.text}>1.</Text>
                             <Text style={styles.text}>{jsonData.bulletPoints.first}</Text>
                         </View>
@@ -79,31 +77,23 @@ const EmergencyScreen = ({navigation}) => {
                             <Text style={styles.text}>3.</Text>
                             <Text style={styles.text}>{jsonData.bulletPoints.third}</Text>
                         </View>
-                    </View>
+                </HeaderWithInfo>
 
-                    <View style={styles.subContainer2}>
-                        <Text style={styles.name}>Campus Security</Text>
-                    </View>
-
-                    <View style={[styles.subContainer2, { marginBottom: '5%', height: '15%', padding: '5%', }]}>
-                        <TouchableOpacity style={{height: '100%', width: '100%', backgroundColor: '#018489', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}} 
+                <HeaderWithInfo title={'What to do in a heart emergency'}>
+                    <TouchableOpacity style={{height: screenHeight/12 , width: '100%', backgroundColor: '#018489', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}} 
                         onPress={() => callNumber(0)}
-                        > 
-                            <Image 
-                                source={ require('../assets/images/phone.png') }
-                                resizeMode='contain'
-                                style={{height: '75%', width: '20%'}}
-                            />
-                            <Text style={[styles.name, {fontSize: RFValue(18), width: '100%', position: 'absolute'}]}>+44 (0) 141 548 2222</Text>
-                        </TouchableOpacity>
-                    </View>
+                    > 
+                        <Image 
+                            source={ require('../assets/images/phone.png') }
+                            resizeMode='contain'
+                            style={{height: '75%', width: '20%'}}
+                        />
+                        <Text style={[styles.name, {fontSize: RFValue(18), width: '100%', position: 'absolute'}]}>+44 (0) 141 548 2222</Text>
+                    </TouchableOpacity>
+                </HeaderWithInfo>
 
-                    <View style={styles.subContainer2}>
-                        <Text style={styles.name}>Emergency</Text>
-                    </View>
-
-                    <View style={[styles.subContainer2, { marginBottom: '5%', height: '15%', padding: '5%', }]}>
-                        <TouchableOpacity style={{height: '100%', width: '100%', backgroundColor: '#AB1010', borderRadius: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}
+                <HeaderWithInfo title={'What to do in a heart emergency'}>
+                <TouchableOpacity style={{height: screenHeight/12 , width: '100%', backgroundColor: '#AB1010', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}} 
                         onPress={() => callNumber(0)}
                         > 
                             <Image 
@@ -113,8 +103,10 @@ const EmergencyScreen = ({navigation}) => {
                             />
                             <Text style={[styles.name, {fontSize: RFValue(18), width: '100%', position: 'absolute'}]}>999</Text>
                         </TouchableOpacity>
-                    </View>
-                </>
+                </HeaderWithInfo>
+                
+
+                </ScrollView>
             ) : (
                 <>
                     <View style={styles.subContainer2}>
@@ -226,8 +218,7 @@ const EmergencyScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
-        width: '100%',
+        flex:1,
         backgroundColor: '#15202b',
         paddingLeft: (screenHeight * 0.025),
         paddingRight: (screenHeight * 0.025),

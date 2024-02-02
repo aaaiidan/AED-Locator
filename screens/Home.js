@@ -39,7 +39,7 @@ const Home = ({navigation, route}) => {
 
     const mediumOpenY = (40/ 100) * containerHeight; //60% of screen
 
-    const directionOpenY = (60/ 100) * containerHeight;
+    const directionOpenY = (70/ 100) * containerHeight;
 
     const fullOpenY = 0; //100% of screen
 
@@ -54,7 +54,7 @@ const Home = ({navigation, route}) => {
     const previousTranslateY = useSharedValue(closedY);
     const gestureState = useSharedValue(fullOpenY);
     const velocityFlag = useSharedValue(false);
-    const [mediumVisible, setmediumVisible] = useState(false);
+    const [fullOpenVisible, setFullOpenVisible] = useState(false);
 
     //Scrollview variables
     const [scrollEnabled, setScrollEnabled] = useState(false);
@@ -84,14 +84,15 @@ const Home = ({navigation, route}) => {
                 runOnJS(setScrollEnabled)(false)
             }
 
-            if(translateY.value < (500/ 812) * screenHeight && mediumVisible == false){
-                runOnJS(setmediumVisible)(true)
-            } 
+            if(translateY.value < (80/100) * containerHeight && fullOpenVisible == false){
+                runOnJS(setFullOpenVisible)(true)
+            }
 
 
-			if (event.velocityY > 1000) {
+			if (event.velocityY > 2000) {
                 velocityFlag.value = true;
-				translateY.value = withTiming(closedY); // Example: Snap to maxY if the swipe velocity is high
+				translateY.value = withTiming(closedY); 
+
                 runOnJS(setDisplayDirections)(false);
                 runOnJS(setlock)(false)
 			} else {
@@ -119,12 +120,15 @@ const Home = ({navigation, route}) => {
                 if (!displayDirections) {
                     if(translateY.value > (85/100) * containerHeight){ // 85% to 100%
                         translateY.value = withTiming(closedY);
+                        runOnJS(setFullOpenVisible)(false)
                     } else if(translateY.value >= (60/100) * containerHeight && translateY.value < (85/100) * containerHeight){ //60% to 85%
                         translateY.value = withTiming(smallOpenY);
+                        runOnJS(setFullOpenVisible)(false)
                     } else if (translateY.value < (60/100) * containerHeight && isPositive){ //less than 60% && postive
                         translateY.value = withTiming(fullOpenY);
                     } else if (translateY.value > (30/100) * containerHeight && !isPositive){ //less than 80% && negative direction
                         translateY.value = withTiming(smallOpenY);
+                        runOnJS(setFullOpenVisible)(false)
                     } else {  
                         translateY.value = withTiming(fullOpenY);
                     }
@@ -139,7 +143,7 @@ const Home = ({navigation, route}) => {
                         translateY.value = withTiming(directionOpenY);
                     } else if (translateY.value > directionOpenY && translateY.value < smallOpenY) {
                         translateY.value = withTiming(closedY);
-                        runOnJS(setmediumVisible)(false)
+                        runOnJS(setFullOpenVisible)(false)
                         runOnJS(setDisplayDirections)(false);
                         runOnJS(setlock)(false)
                     }
@@ -167,14 +171,14 @@ const Home = ({navigation, route}) => {
     });
 
     const smallViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [(500 / 812) * screenHeight, (460 / 812) * screenHeight], [1, 1], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [smallOpenY, maxSmallY], [1, 0], Extrapolate.CLAMP);
         return {
         opacity,
         };
     });
 
-    const mediumViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [(450/ 812) * screenHeight, (250/ 812) * screenHeight], [0, 1], Extrapolate.CLAMP);
+    const fullOpenViewOpacityChange = useAnimatedStyle(() => {
+        const opacity = interpolate(translateY.value, [(65/100) * containerHeight, (30/100) * containerHeight], [0, 1], Extrapolate.CLAMP);
         return {
         opacity,
         };
@@ -470,7 +474,7 @@ const Home = ({navigation, route}) => {
                         />
                     </Modal>
 
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width:'100%', height:'100%', backgroundColor: 'green', padding:'2.5%'}}>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width:'100%', height:'100%', backgroundColor: '#192734', padding:'2.5%'}}>
                         <View style={{flex: 1}}>
                             <Text style={styles.name}>{getName}</Text>
                             {getAddress.map((value, index) => (
@@ -481,19 +485,16 @@ const Home = ({navigation, route}) => {
                     </View>
                     
 
-                    
-
-
                 </Animated.View>
             ) : null }
-                {1==2 ? (
-                    <Animated.View style={[styles.mediumView, mediumViewOpacityChange]}>
-                        <AEDImageContainer style={styles.aedMedium} onPress={toggleImageModal} imageObj={getImg} />
+                {fullOpenVisible ? (
+                    <Animated.View style={[styles.fullOpenView, fullOpenViewOpacityChange]}>
+                        <AEDImageContainer style={styles.aedFull} onPress={toggleImageModal} imageObj={getImg} />
                         <ScrollView style={{flexGrow: 0, height: '60%', width: '100%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
-
 
                             <HeaderWithInfo title={'Name'}>
                                 <Text style={styles.text}>{getName}</Text>
+         
                             </HeaderWithInfo>
                            
                             <HeaderWithInfo title={'Address'} split={true}>
@@ -630,7 +631,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         height: '100%',
         width: '100%',
-        backgroundColor: 'red',
+        backgroundColor: '#15202b',
         paddingLeft: (screenHeight * 0.0125),
         paddingRight: (screenHeight * 0.0125),
         position:'absolute',
@@ -644,10 +645,10 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end', 
         width:'100%', 
         height:'20%' , 
-        backgroundColor: 'blue'
+        
     },
 
-    mediumView: {
+    fullOpenView: {
         alignItems: 'center',
         justifyContent: 'flex-start',
         height: '100%',
@@ -674,7 +675,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
 
-    aedMedium: {
+    aedFull: {
         height: '20%',
         aspectRatio: 1,
         borderRadius: 100,

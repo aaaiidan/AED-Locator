@@ -5,28 +5,18 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 //import externalStyle from '../style/externalStyle';
 
 const screenHeight = Dimensions.get('window').height
-const HeaderWithInfo = ({title, split = false, children}) => {
+const HeaderWithSplitInfo = ({title}) => {
 
     return (
         <View style={styles.headerInfoContainer}>
             <View style={styles.textContainer}>
                 <Text style={styles.title}>{title}</Text>
             </View>
-            {split ? 
-                <View style = {styles.subContainer}>
-                    {React.Children.map(children, (child, index) => (
-                        <View style={styles.textContainer}>
-                            {child}
-                        </View>
-                    ))}
-                </View> 
-            : 
-                <View style={[styles.textContainer,  React.Children.count(children)==1 && children.type == TouchableOpacity ? {  paddingHorizontal: '5%',paddingVertical: '5%'} : null]}>
-                    {children}
-                </View>
-            }
+            <View style={[styles.subContainer2, { marginBottom: '5%', height: '45%'}]}>
+              
+                
+            </View>
 
-            
         </View>  
         
     );
@@ -48,7 +38,8 @@ textContainer: {
     paddingHorizontal: '2%',
     paddingVertical: '1%',
     flex:1,
-    alignItems:'center'
+    justifyContent: 'center',
+    alignItems: 'center'
 },
 
 title:{
@@ -71,4 +62,4 @@ subContainer: {
 
 });
 
-export default HeaderWithInfo;
+export default HeaderWithSplitInfo;
