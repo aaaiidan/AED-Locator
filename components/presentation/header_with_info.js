@@ -48,7 +48,7 @@ textContainer: {
     paddingHorizontal: '2%',
     paddingVertical: '1%',
     flex:1,
-    alignItems:'center'
+    //alignItems:'center' 
 },
 
 title:{

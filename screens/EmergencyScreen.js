@@ -109,105 +109,94 @@ const EmergencyScreen = ({navigation}) => {
                 </ScrollView>
             ) : (
                 <>
-                    <View style={styles.subContainer2}>
-                        <Text style={styles.name}>Hands-only CPR</Text>
-                    </View>
-                    <View style={{flex:1, position:'relative',}}>
-                        
-
-                        <View style={{flex:1,  flexDirection: 'row', position:'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1}}>
-                            
-                            <View style={{flex:1, marginRight: 3, justifyContent:'space-evenly' }}>
-                                <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
-                                        <Text style={styles.cprText}>1. </Text>
-                                        <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.first}</Text>
-                                    </View>
-
-                                    <View style={ {width: '48%', justifyContent:'center'}}>
-                                        <Image 
-                                            source={require('../assets/images/cpr.png')}
-                                            resizeMode='contain'
-                                            style={{height: screenHeight/10, width: '100%'}}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
-                                        <Text style={styles.cprText}>2. </Text>
-                                        <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.second}</Text>
-                                    </View>
-
-                                    <View style={ {width: '48%', justifyContent:'center'}}>
-                                        <Image 
-                                            source={require('../assets/images/cpr2.png')}
-                                            resizeMode='contain'
-                                            style={{height: screenHeight/10, width: '100%'}}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>  
-                                        <Text style={styles.cprText}>3. </Text>
-                                        <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.third}</Text>
-                                    </View>
-
-                                    <View style={ {width: '48%', justifyContent:'center'}}>
-                                        <Image 
-                                            source={require('../assets/images/cpr3.png')}
-                                            resizeMode='contain'
-                                            style={{height: screenHeight/10, width: '100%'}}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
-                                        <Text style={styles.cprText}>4. </Text>
-                                        <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.fourth}</Text>
-                                    </View>
-
-                                    <View style={ {width: '48%', justifyContent:'center'}}>
-                                        <Image 
-                                            source={require('../assets/images/cpr4.png')}
-                                            resizeMode='contain'
-                                            style={{height: screenHeight/10, width: '100%'}}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={ {justifyContent:'space-between', flexDirection: 'row'}}>
-                                    <View style={ {width: '48%', flexDirection: 'row', paddingLeft: 5,}}>
-                                        <Text style={styles.cprText}>5. </Text>
-                                        <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.fifth}</Text>
-                                    </View>
-
-                                    <View style={ {width: '48%', justifyContent:'center'}}>
-                                        <Image 
-                                            source={require('../assets/images/heartWhite.png')}
-                                            resizeMode='contain'
-                                            style={{height: screenHeight/10, width: '100%'}}
-                                        />
-                                    </View>
-                                </View>
-                               
-                            
-                                
+                <ScrollView>
+                    <HeaderWithSplitInfo title={'Hands-only CPR'}>
+                        <View style={{flex:1,  flexDirection: 'row', marginBottom: 3, alignItems: 'center'}}>
+                            <View style={{flex:1, flexDirection: 'row', }}>
+                                <Text style={styles.cprText}>1. </Text>
+                                <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.first}</Text>
                             </View>
-                            
+
+                         
+                                <View style={ {flex:1, justifyContent:'center'}}>
+                                    <Image 
+                                        source={require('../assets/images/cpr.png')}
+                                        resizeMode='contain'
+                                        style={{height: screenHeight/10, width: '100%'}}
+                                    />
+                                </View>
+                          
                         </View>
 
-                        <View style={{flex:1, flexDirection: 'row',  position:'absolute', top: 0, left: 0, right: 0, bottom: 0}}>
-                            <View style={{flex:1, backgroundColor: '#192734', marginRight: 3, justifyContent:'space-evenly' }}>
+                        <View style={{flex:1,  flexDirection: 'row', marginBottom: 3, alignItems: 'center'}}>
+                            <View style={{flex:1, flexDirection: 'row',}}>
+                                <Text style={styles.cprText}>2. </Text>
+                                <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.second}</Text>
                             </View>
-                            <View style={{flex:1, backgroundColor: '#192734',}}>
-                           </View>
 
+                          
+                            <View style={ {flex:1, justifyContent:'center'}}>
+                                <Image 
+                                    source={require('../assets/images/cpr2.png')}
+                                    resizeMode='contain'
+                                    style={{height: screenHeight/10, width: '100%'}}
+                                />
+                            </View>
                         </View>
 
-                    </View>
+                        <View style={{flex:1,  flexDirection: 'row', marginBottom: 3, alignItems: 'center'}}>
+                            <View style={{flex:1, flexDirection: 'row',}}>
+                                <Text style={styles.cprText}>3. </Text>
+                                <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.third}</Text>
+                            </View>
+
+                          
+                            <View style={ {flex:1, justifyContent:'center'}}>
+                                <Image 
+                                    source={require('../assets/images/cpr3.png')}
+                                    resizeMode='contain'
+                                    style={{height: screenHeight/10, width: '100%'}}
+                                />
+                            </View>
+                        </View>
+
+                        <View style={{flex:1,  flexDirection: 'row', marginBottom: 3, alignItems: 'center'}}>
+                            <View style={{flex:1, flexDirection: 'row',}}>
+                                <Text style={styles.cprText}>4. </Text>
+                                <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.fourth}</Text>
+                            </View>
+
+                          
+                            <View style={ {flex:1, justifyContent:'center'}}>
+                                <Image 
+                                    source={require('../assets/images/cpr4.png')}
+                                    resizeMode='contain'
+                                    style={{height: screenHeight/10, width: '100%'}}
+                                />
+                            </View>
+                        </View>
+
+                        <View style={{flex:1,  flexDirection: 'row', marginBottom: 3, alignItems: 'center'}}>
+                            <View style={{flex:1, flexDirection: 'row',}}>
+                                <Text style={styles.cprText}>5. </Text>
+                                <Text style={[styles.cprText, {flexShrink: 1}]}>{jsonData.cpr.fifth}</Text>
+                            </View>
+
+                          
+                            <View style={ {flex:1, justifyContent:'center'}}>
+                                <Image 
+                                    source={require('../assets/images/heartWhite.png')}
+                                    resizeMode='contain'
+                                    style={{height: screenHeight/10, width: '100%'}}
+                                />
+                            </View>
+                        </View>
+                    </HeaderWithSplitInfo>
+
+                </ScrollView>
+
+                
+                   
                 </>
             ) }
             

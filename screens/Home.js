@@ -121,10 +121,10 @@ const Home = ({navigation, route}) => {
                     if(translateY.value > (85/100) * containerHeight){ // 85% to 100%
                         translateY.value = withTiming(closedY);
                         runOnJS(setFullOpenVisible)(false)
-                    } else if(translateY.value >= (60/100) * containerHeight && translateY.value < (85/100) * containerHeight){ //60% to 85%
+                    } else if(translateY.value >= (75/100) * containerHeight && translateY.value < (85/100) * containerHeight){ //75% to 85%
                         translateY.value = withTiming(smallOpenY);
                         runOnJS(setFullOpenVisible)(false)
-                    } else if (translateY.value < (60/100) * containerHeight && isPositive){ //less than 60% && postive
+                    } else if (translateY.value < (75/100) * containerHeight && isPositive){ //less than 75% && postive
                         translateY.value = withTiming(fullOpenY);
                     } else if (translateY.value > (30/100) * containerHeight && !isPositive){ //less than 80% && negative direction
                         translateY.value = withTiming(smallOpenY);
