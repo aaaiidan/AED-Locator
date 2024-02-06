@@ -6,7 +6,8 @@ import Modal from 'react-native-modal';
 import AEDImageContainer from '../components/touchables/aed_image_container';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, } from 'firebase/firestore';
+import { getStorage, ref, getDownloadURL, getBlob} from 'firebase/storage'
 import { db } from '../services/firebaseConfig';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
@@ -226,6 +227,7 @@ const Home = ({navigation, route}) => {
 
     const [aedData, setAedData] = useState(null);
     const [locationData, setLocationData] = useState(null);
+    const [storageData, setStorageData] = useState({});
 
     const [getAddress, setAddress] = useState([]);
     const [getName, setName] = useState('Unavailable');
@@ -234,7 +236,7 @@ const Home = ({navigation, route}) => {
     const [getBrand, setBrand] = useState('-');
     const [getDesc, setDesc] = useState('-');
     const [getFloor, setFloor] = useState('-');
-    const [getImg, setImg] = useState('-');
+    const [getImg, setImg] = useState(null);
 
     const [distance, setDistance] = useState(null);
     const [maneuver, setManeuver] = useState(null);
@@ -251,8 +253,51 @@ const Home = ({navigation, route}) => {
         }
     }
 
+    const fetchImages = async (imagePath) => {
+        if (imagePath != null){
+            const storageRef = ref(getStorage(), imagePath.path.replace('gs:/', 'gs://'))
+            try {
+                const blob = await getBlob(storageRef);
+                return convertBlobToBase64(blob)
+            } catch (error) {
+                console.error(error)
+                console.log('could not find image')
+                return null
+            }
+        } else {
+            return null
+        }
+    }
+
+    const convertBlobToBase64 = (blob) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+            resolve(reader.result); 
+        };
+        reader.readAsDataURL(blob);
+    });
+
+    const getImageFirestore = async (imagePath) => {
+        if (imagePath != null){
+            const storageRef = ref(getStorage(), imagePath.path.replace('gs:/', 'gs://'))
+            try {
+                const url = await getDownloadURL(storageRef);
+                setImg(url)
+                console.log('url -', url)
+            } catch (error) {
+                console.log('could not find image')
+                setImg(null)
+            }
+        } else {
+            setImg(null)
+        }
+        
+    }
+
     const formatData = (location) => {
         setAddress(addressOrder.map(key => location.Address[key]));
+
         setOpeningTimes(
             openingTimesOrder.map(key => {
                 if(location.OpeningTimes[key]['Open'] == 'Closed' || location.OpeningTimes[key]['Open'] == 'Open 24 hours'){
@@ -263,6 +308,7 @@ const Home = ({navigation, route}) => {
                        
             })
         );
+
         setName(location.Name);
         setDestination(location.Coordinates);
        // console.log('after load - ', destination);
@@ -273,12 +319,12 @@ const Home = ({navigation, route}) => {
                 setBrand(aed.Brand != null ? aed.Brand : '-');
                 setDesc(aed.Description != null ? aed.Description : '-');
                 setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
-                setImg(aed.Image != null ? aed.Image : null);
+                setImg(aed.id in storageData ? storageData[aed.id] : null)
                 return true;
             }
             return false;
         });
-       // console.log(getBrand, getDesc, getFloor, getImg);
+       //console.log(getBrand, getDesc, getFloor, getImg);
     }
 
     const markerSetup = (location) => {
@@ -300,12 +346,33 @@ const Home = ({navigation, route}) => {
                 const aeds = await loadData('Aeds');
                 setLocationData(locations);
                 setAedData(aeds);
+
+                const storageDataUpdates = {};
+                await Promise.all(aeds.map(async (aed) => {
+                    if (aed.Image) {
+                        const imageData = await fetchImages(aed.Image);
+                        storageDataUpdates[aed.id] = imageData;
+                    }
+                }));
+
+                setStorageData(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates }));
+                
             } catch (error) {
 
             }        
         }
         fetchData();
     },[]);
+
+    useEffect(() => {
+        
+        Object.entries(storageData).forEach(([key, value]) => {
+            console.log(key); 
+        });
+    }, [storageData]);
+    
+
+   
 
     // ==========================================
     // =         Handling user Location         =
@@ -468,7 +535,8 @@ const Home = ({navigation, route}) => {
                         backdropOpacity={0.9}
                     >
                         <Image 
-                            source={placeholder_aed}
+                        
+                            source={getImg ? { uri: getImg } : placeholder_aed}
                             resizeMode='contain'
                             style={{ width: '100%', height: image.height * ratio}}
                         />
@@ -481,7 +549,7 @@ const Home = ({navigation, route}) => {
                                     <Text key={index} style={styles.text}>{value}</Text>
                             ))}
                         </View>
-                        <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
+                        <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
                     </View>
                     
 
@@ -489,7 +557,7 @@ const Home = ({navigation, route}) => {
             ) : null }
                 {fullOpenVisible ? (
                     <Animated.View style={[styles.fullOpenView, fullOpenViewOpacityChange]}>
-                        <AEDImageContainer style={styles.aedFull} onPress={toggleImageModal} imageObj={getImg} />
+                        <AEDImageContainer style={styles.aedFull} onPress={toggleImageModal} base64Image={getImg} />
                         <ScrollView style={{flexGrow: 0, height: '60%', width: '100%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
 
                             <HeaderWithInfo title={'Name'}>
@@ -557,7 +625,7 @@ const Home = ({navigation, route}) => {
 
                             <View style={styles.infoContainer}>
                                 <View style={styles.directionContainer}>
-                                    <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} imageObj={getImg} />
+                                    <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
                                 </View>
 
                                 <View style={[styles.directionContainer, styles.directionContainerMargin]}>
