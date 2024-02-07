@@ -5,10 +5,10 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 //import externalStyle from '../style/externalStyle';
 
 const screenHeight = Dimensions.get('window').height
-const HeaderWithInfo = ({title, split = false, children}) => {
+const HeaderWithInfo = ({title, split = false, children, style}) => {
 
     return (
-        <View style={styles.headerInfoContainer}>
+        <View style={[styles.headerInfoContainer, style]}>
             <View style={styles.textContainer}>
                 <Text style={styles.title}>{title}</Text>
             </View>
@@ -34,40 +34,40 @@ const HeaderWithInfo = ({title, split = false, children}) => {
 
 const styles = StyleSheet.create({
 
-headerInfoContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    marginBottom: '3%',
-},
+    headerInfoContainer: {
+        flexDirection: 'column',
+        flex:1,
+        marginBottom: '3%',
+    },
 
-textContainer: {
-    minHeight: 25,
-    flexDirection: 'column',
-    backgroundColor: '#192734',
-    marginBottom: 3,
-    paddingHorizontal: '2%',
-    paddingVertical: '1%',
-    flex:1,
-    //alignItems:'center' 
-},
+    textContainer: {
+        minHeight: 25,
+        flexDirection: 'column',
+        backgroundColor: '#192734',
+        marginBottom: 3,
+        paddingHorizontal: '2%',
+        paddingVertical: '1%',
+        flex:1,
+        //alignItems:'center' 
+    },
 
-title:{
-    textAlign:'left',
-    color: '#FFFFFF',
-    fontSize: RFValue(14),
-    fontWeight: 'bold',
-},
+    title:{
+        textAlign:'left',
+        color: '#FFFFFF',
+        fontSize: RFValue(14),
+        fontWeight: 'bold',
+    },
 
-text:{
-    textAlign:'left',
-    color: '#FFFFFF',
-    fontSize: RFValue(14),
-},
+    text:{
+        textAlign:'left',
+        color: '#FFFFFF',
+        fontSize: RFValue(14),
+    },
 
-subContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#192734',
-},
+    subContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#192734',
+    },
 
 });
 

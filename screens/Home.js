@@ -278,22 +278,8 @@ const Home = ({navigation, route}) => {
         reader.readAsDataURL(blob);
     });
 
-    const getImageFirestore = async (imagePath) => {
-        if (imagePath != null){
-            const storageRef = ref(getStorage(), imagePath.path.replace('gs:/', 'gs://'))
-            try {
-                const url = await getDownloadURL(storageRef);
-                setImg(url)
-                console.log('url -', url)
-            } catch (error) {
-                console.log('could not find image')
-                setImg(null)
-            }
-        } else {
-            setImg(null)
-        }
-        
-    }
+  
+   
 
     const formatData = (location) => {
         setAddress(addressOrder.map(key => location.Address[key]));
@@ -535,7 +521,6 @@ const Home = ({navigation, route}) => {
                         backdropOpacity={0.9}
                     >
                         <Image 
-                        
                             source={getImg ? { uri: getImg } : placeholder_aed}
                             resizeMode='contain'
                             style={{ width: '100%', height: image.height * ratio}}
@@ -607,43 +592,20 @@ const Home = ({navigation, route}) => {
                 ) : null }
                 {displayDirections ? (
                     <Animated.View style={[styles.directionView, directonViewOpacityChange]}>
+                         <ScrollView style={{flexGrow: 0, height:'100%', width: '100%'}} scrollEnabled={false}>
+                            <HeaderWithInfo title={'Directions'} split={true}>
+                                <>
+                                  
+                                </>
+                                <>
+                                    <AEDImageContainer style={styles.aedDirection}  onPress={toggleImageModal} base64Image={getImg} />
+                                </>
+                                
 
-                        <View style={styles.mediumFullInfoContainer}>
-                            <View style={styles.directionTitleContainer}>
-                                <View style={styles.subContainer2}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>{getName}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={[styles.subContainer2, styles.directionContainerMargin]}>
-                                    <View style={styles.textContainer}>
-                                        <Text style={styles.name}>{distance}</Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.infoContainer}>
-                                <View style={styles.directionContainer}>
-                                    <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
-                                </View>
-
-                                <View style={[styles.directionContainer, styles.directionContainerMargin]}>
-                                <Image 
-                                    source={
-                                        maneuver == 'left' 
-                                        ? require('../assets/images/turn_left.png')
-
-                                        : maneuver == 'right' 
-                                            ? require('../assets/images/turn_right.png')
-                                            : require('../assets/images/straight_arrow.png')
-                                    }
-                                    resizeMode='contain'
-                                    style={{height: '80%', width: '80%'}}
-                                />
-                                </View>
-                            </View>
-                        </View>
+                                  
+                                </HeaderWithInfo>
+                         </ScrollView>
+                    
                         
                     </Animated.View>
                 ) : null }
@@ -725,13 +687,15 @@ const styles = StyleSheet.create({
     },
 
     directionView: {
+        flexDirection: 'column', 
         alignItems: 'center',
         justifyContent: 'flex-start',
-        height: '19%',
+        height: '30%',
         width: '100%',
-        position:'absolute',
+        flexWrap: 'wrap',
         opacity: 0,
-        marginTop:(screenHeight * 0.025),
+        paddingBottom: (screenHeight * 0.0125),
+        paddingTop: (screenHeight * 0.0125),
     },
   
     aedSmall: {
@@ -752,6 +716,16 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         marginTop: '5%',
         marginBottom: '5%',
+    },
+
+    aedDirection: {
+        width:'50%',
+        aspectRatio: 1,
+        borderRadius: 100,
+        overflow: 'hidden',
+        borderColor: '#FFFFFF',
+        borderWidth: 2,
+     
     },
   
     infoContainer:{

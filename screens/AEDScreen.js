@@ -12,8 +12,9 @@ const screenHeight = Dimensions.get('window').height
 
 const AEDScreen = ({navigation}) => {
 
-    const{ locations, aeds } = useData();
+    const{ locations, aeds, imagesBase64 } = useData();
 
+   
     return (
         <View style={styles.container}>
             <ScrollView >
@@ -21,7 +22,7 @@ const AEDScreen = ({navigation}) => {
                     let img = null;
                     aeds.map((aed) => {
                         if(aed.LocationRef.id == location.id){
-                            img = aed.Image != null ? aed.Image : require('../assets/images/placeholder_aed.png')
+                            img = aed.id in imagesBase64 ? {uri :imagesBase64[aed.id]} : require('../assets/images/placeholder_aed.png')
                         }
                     });
                     return(
