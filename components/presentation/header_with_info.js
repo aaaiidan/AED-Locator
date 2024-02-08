@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
 
     headerInfoContainer: {
         flexDirection: 'column',
-        flex:1,
         marginBottom: '3%',
     },
 
@@ -48,6 +47,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: '2%',
         paddingVertical: '1%',
         flex:1,
+        
         //alignItems:'center' 
     },
 

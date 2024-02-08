@@ -15,6 +15,7 @@ import LocateIcon from '../components/touchables/locate_icon';
 import haversine from 'haversine';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import HeaderWithInfo from '../components/presentation/header_with_info';
+import { useData } from '../DataContext';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -48,7 +49,7 @@ const Home = ({navigation, route}) => {
     // =        Animation of overlay            =
     // ==========================================
     const [displayDirections, setDisplayDirections] = useState(false);
-    const [lock, setlock] = useState(false);
+   
 
      //Variables for gesture handling
     const translateY = useSharedValue(closedY); // Initial position below the screen
@@ -65,6 +66,8 @@ const Home = ({navigation, route}) => {
     const [ratio, setRatio] = useState(0);
 
     const [isPositive, setIsPositive] = useState(true);
+
+    const [atDestination, setAtDestination]  = useState(false);
 
      // Function to handle swiping animation
      const onGestureEvent = useAnimatedGestureHandler({
@@ -95,7 +98,7 @@ const Home = ({navigation, route}) => {
 				translateY.value = withTiming(closedY); 
 
                 runOnJS(setDisplayDirections)(false);
-                runOnJS(setlock)(false)
+             
 			} else {
                 velocityFlag.value = false;
             }
@@ -136,23 +139,30 @@ const Home = ({navigation, route}) => {
 
 
                 } else {
-                    if (translateY.value <= (250 / 812) * screenHeight) { // between 250 - 0
+                    if (translateY.value > (75/100) * containerHeight) { // 75% to 100% - Close
+                        translateY.value = withTiming(closedY);
+                        runOnJS(setDisplayDirections)(false);
+                        runOnJS(setFullOpenVisible)(false)
+                        runOnJS(setAtDestination)(false)
+                    } else if (translateY.value < (75/100) * containerHeight && translateY.value > (65/100)*containerHeight) { 
+                        translateY.value = withTiming(directionOpenY);
+                    } else  {
                         translateY.value = withTiming(fullOpenY);
                         runOnJS(setDisplayDirections)(false);
-                        runOnJS(setlock)(false)
-                    } else if (translateY.value < directionOpenY) {
-                        translateY.value = withTiming(directionOpenY);
-                    } else if (translateY.value > directionOpenY && translateY.value < smallOpenY) {
-                        translateY.value = withTiming(closedY);
-                        runOnJS(setFullOpenVisible)(false)
-                        runOnJS(setDisplayDirections)(false);
-                        runOnJS(setlock)(false)
+                     
                     }
                 }
             }
 		},
 	});
 
+
+    const closeDestination = () =>{
+        if(displayDirections){
+            translateY.value = withTiming(closedY);
+            setDisplayDirections(false);
+        }
+    }
 
     //Starts animation of overlay
     const startAnimation = () => {
@@ -171,6 +181,7 @@ const Home = ({navigation, route}) => {
         };
     });
 
+    //Changes the opacity from 1 to 0 as the animated view moves upwards
     const smallViewOpacityChange = useAnimatedStyle(() => {
         const opacity = interpolate(translateY.value, [smallOpenY, maxSmallY], [1, 0], Extrapolate.CLAMP);
         return {
@@ -178,6 +189,7 @@ const Home = ({navigation, route}) => {
         };
     });
 
+    //Changes the opacity from 0 to 1 as the animated view moves upwards
     const fullOpenViewOpacityChange = useAnimatedStyle(() => {
         const opacity = interpolate(translateY.value, [(65/100) * containerHeight, (30/100) * containerHeight], [0, 1], Extrapolate.CLAMP);
         return {
@@ -185,8 +197,9 @@ const Home = ({navigation, route}) => {
         };
     });
 
+    //Changes the opacity from 0 to 1 as the animated view moves upwards
     const directonViewOpacityChange = useAnimatedStyle(() => {
-        const opacity = interpolate(translateY.value, [(250/ 812) * screenHeight, directionOpenY], [0, 1], Extrapolate.CLAMP);
+        const opacity = interpolate(translateY.value, [(60/100) * containerHeight, directionOpenY], [0, 1], Extrapolate.CLAMP);
         return {
         opacity,
         };
@@ -208,7 +221,6 @@ const Home = ({navigation, route}) => {
             markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
         }, 2500); 
 
-        setlock(true);
       };
 
       useEffect(() => {
@@ -224,10 +236,7 @@ const Home = ({navigation, route}) => {
     // ==========================================
     // =            Handling data               =
     // ==========================================
-
-    const [aedData, setAedData] = useState(null);
-    const [locationData, setLocationData] = useState(null);
-    const [storageData, setStorageData] = useState({});
+    const{ locations, aeds, imagesBase64 } = useData();
 
     const [getAddress, setAddress] = useState([]);
     const [getName, setName] = useState('Unavailable');
@@ -241,44 +250,6 @@ const Home = ({navigation, route}) => {
     const [distance, setDistance] = useState(null);
     const [maneuver, setManeuver] = useState(null);
 
-
-    const loadData = async (collectionName) => {
-        try{
-            const querySnapshot = await getDocs(collection(db, collectionName));
-            const queryDocs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
-            return queryDocs
-
-        } catch (error) {
-            console.error("error fetching data: ", error);
-        }
-    }
-
-    const fetchImages = async (imagePath) => {
-        if (imagePath != null){
-            const storageRef = ref(getStorage(), imagePath.path.replace('gs:/', 'gs://'))
-            try {
-                const blob = await getBlob(storageRef);
-                return convertBlobToBase64(blob)
-            } catch (error) {
-                console.error(error)
-                console.log('could not find image')
-                return null
-            }
-        } else {
-            return null
-        }
-    }
-
-    const convertBlobToBase64 = (blob) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = reject;
-        reader.onload = () => {
-            resolve(reader.result); 
-        };
-        reader.readAsDataURL(blob);
-    });
-
-  
    
 
     const formatData = (location) => {
@@ -299,13 +270,13 @@ const Home = ({navigation, route}) => {
         setDestination(location.Coordinates);
        // console.log('after load - ', destination);
 
-        aedData.some(aed => {
+        aeds.some(aed => {
             if(aed.LocationRef.id == location.id){
                 console.log('111111111111111', aed.LocationRef);
                 setBrand(aed.Brand != null ? aed.Brand : '-');
                 setDesc(aed.Description != null ? aed.Description : '-');
                 setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
-                setImg(aed.id in storageData ? storageData[aed.id] : null)
+                setImg(aed.id in imagesBase64 ? imagesBase64[aed.id] : null)
                 return true;
             }
             return false;
@@ -325,37 +296,14 @@ const Home = ({navigation, route}) => {
 
     useEffect(() => {
         setRatio(screenWdidth/image.width); //Adjust enhanced image height depending on width
-
-        const fetchData = async () => {
-            try {
-                const locations = await loadData('Locations');
-                const aeds = await loadData('Aeds');
-                setLocationData(locations);
-                setAedData(aeds);
-
-                const storageDataUpdates = {};
-                await Promise.all(aeds.map(async (aed) => {
-                    if (aed.Image) {
-                        const imageData = await fetchImages(aed.Image);
-                        storageDataUpdates[aed.id] = imageData;
-                    }
-                }));
-
-                setStorageData(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates }));
-                
-            } catch (error) {
-
-            }        
-        }
-        fetchData();
     },[]);
 
     useEffect(() => {
         
-        Object.entries(storageData).forEach(([key, value]) => {
+        Object.entries(imagesBase64).forEach(([key, value]) => {
             console.log(key); 
         });
-    }, [storageData]);
+    }, [imagesBase64]);
     
 
    
@@ -371,12 +319,13 @@ const Home = ({navigation, route}) => {
 
   
 
-    const [region, setRegion] = useState({
+    const region = {
         latitude: 55.8621133244897,
         longitude: -4.2423899331605615,
         latitudeDelta: 0.01,
         longitudeDelta: 0.005,
-    });
+    };
+
     const mapRef = useRef(null);
 
     const getLocation = async () => {
@@ -432,7 +381,7 @@ const Home = ({navigation, route}) => {
     const closestAED = () => {
         let min = Infinity;
         let minAED = null;
-        locationData && locationData.map((location, index) => {
+        locations && locations.map((location, index) => {
             const distance = haversine(userLocation, location.Coordinates, {unit: 'meter'})
             if(min > distance){
                 min = distance
@@ -442,13 +391,23 @@ const Home = ({navigation, route}) => {
         markerSetup(minAED);
     }
 
-    useEffect(() => {
-        //console.log('saved user location -', userLocation)
-        if (userLocation && mapRef.current && lock) {
-         markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 0)
+    const reachedAED = () => {
+       
+       const distance = haversine(userLocation, destination, {unit: 'meter'})
+       
+        if(distance < 50){
+            closeDestination();
         }
-      }, [userLocation]);
+        
+    }
 
+    useEffect(() => {
+        if (userLocation != null && destination != null){
+            reachedAED();
+        }
+    }, [userLocation]);
+    
+    
 
 
    
@@ -462,9 +421,10 @@ const Home = ({navigation, route}) => {
             showsUserLocation={true}
             region={region} 
             provider='google'
-            scrollEnabled={!displayDirections}
+            scrollEnabled={true}
+            followsUserLocation={!displayDirections}
         >
-            {locationData && locationData.map((location, index) => {
+            {locations && locations.map((location, index) => {
                 return (
                     <Marker
                         key={location.id}
@@ -592,20 +552,36 @@ const Home = ({navigation, route}) => {
                 ) : null }
                 {displayDirections ? (
                     <Animated.View style={[styles.directionView, directonViewOpacityChange]}>
-                         <ScrollView style={{flexGrow: 0, height:'100%', width: '100%'}} scrollEnabled={false}>
-                            <HeaderWithInfo title={'Directions'} split={true}>
-                                <>
-                                  
-                                </>
-                                <>
-                                    <AEDImageContainer style={styles.aedDirection}  onPress={toggleImageModal} base64Image={getImg} />
-                                </>
-                                
+                        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
+                            <View style={{minHeight: 25, flexDirection: 'column',backgroundColor: '#192734',marginBottom: 3,paddingHorizontal: '2%', paddingVertical: '1%', flex: 1, alignItems: 'center', marginRight: 3}}>
+                                <Text style={styles.name}>{getName}</Text>
+                            </View>
+                            <View style={{minHeight: 25, flexDirection: 'column', backgroundColor: '#192734', marginBottom: 3,paddingHorizontal: '2%', paddingVertical: '1%', flex: 1, alignItems: 'center'}}>
+                                <Text style={styles.name}>{distance}</Text>
+                            </View>
+                        </View>
+                         
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between',  flex:1}}>
 
-                                  
-                                </HeaderWithInfo>
-                         </ScrollView>
-                    
+                            <View style={{ flex:1, backgroundColor: '#192734', paddingHorizontal: '2%', paddingVertical: '1%', alignItems: 'center', marginRight: 3}}>
+                                <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
+                            </View>
+
+                            <View style={{ flex:1, backgroundColor: '#192734', paddingHorizontal: '2%', paddingVertical: '1%', alignItems: 'center', justifyContent: 'center'}}>
+                                <Image 
+                                    source={
+                                        maneuver == 'left' 
+                                        ? require('../assets/images/turn_left.png')
+
+                                        : maneuver == 'right' 
+                                            ? require('../assets/images/turn_right.png')
+                                            : require('../assets/images/straight_arrow.png')
+                                    }
+                                    resizeMode='contain'
+                                    style={{height: '80%', width: '80%'}}
+                                />
+                            </View>
+                        </View>
                         
                     </Animated.View>
                 ) : null }
@@ -687,9 +663,8 @@ const styles = StyleSheet.create({
     },
 
     directionView: {
-        flexDirection: 'column', 
-        alignItems: 'center',
-        justifyContent: 'flex-start',
+     
+        flexDirection:'column',
         height: '30%',
         width: '100%',
         flexWrap: 'wrap',
@@ -719,8 +694,8 @@ const styles = StyleSheet.create({
     },
 
     aedDirection: {
-        width:'50%',
-        aspectRatio: 1,
+        flexGrow: 1,
+        flex:1,
         borderRadius: 100,
         overflow: 'hidden',
         borderColor: '#FFFFFF',
