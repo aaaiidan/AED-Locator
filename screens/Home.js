@@ -1,21 +1,18 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { View, TouchableOpacity , Text, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
+import { View, TouchableOpacity , Text, Image, Dimensions, ScrollView } from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
 import AEDImageContainer from '../components/touchables/aed_image_container';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import { collection, query, where, getDocs, doc, getDoc, } from 'firebase/firestore';
-import { getStorage, ref, getDownloadURL, getBlob} from 'firebase/storage'
-import { db } from '../services/firebaseConfig';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import LocateIcon from '../components/touchables/locate_icon';
 import haversine from 'haversine';
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import HeaderWithInfo from '../components/presentation/header_with_info';
 import { useData } from '../DataContext';
+import styles from '../styles';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -414,9 +411,26 @@ const Home = ({navigation, route}) => {
 
 
     return (
-    <View style={styles.container} onLayout={onContainerLayout}>
+    <View style={styles.homeContainer} onLayout={onContainerLayout}>
+        <Modal 
+            style={styles.modalImage}
+            useNativeDriver={true}
+            animationIn='fadeIn'
+            animationOut='fadeOut'
+            isVisible={isModalVisible}
+            hideModalContentWhileAnimating
+            onBackButtonPress={toggleImageModal}
+            onBackdropPress={toggleImageModal}
+            backdropOpacity={0.9}
+        >
+            <Image 
+                source={getImg ? { uri: getImg } : placeholder_aed}
+                resizeMode='contain'
+                style={{ width: '100%', height: image.height * ratio}}
+            />
+        </Modal>
         <MapView 
-            style={styles.map}
+            style={styles.allAvailableSpace}
             ref={mapRef}
             showsUserLocation={true}
             region={region} 
@@ -462,34 +476,17 @@ const Home = ({navigation, route}) => {
                     resizeMode='contain'
                     style={{height: '100%', width: '25%'}}
                 />
-                <Text style={styles.name}>Nearest AED</Text>
+                <Text style={styles.title}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
         <PanGestureHandler onGestureEvent={onGestureEvent} >
             <Animated.View style={[styles.animatedView, animatedStyle]}>
             {!displayDirections ? (
                 <Animated.View style={[styles.smallView, smallViewOpacityChange]}>  
-                    <Modal 
-                        style={styles.modalImage}
-                        useNativeDriver={true}
-                        animationIn='fadeIn'
-                        animationOut='fadeOut'
-                        isVisible={isModalVisible}
-                        hideModalContentWhileAnimating
-                        onBackButtonPress={toggleImageModal}
-                        onBackdropPress={toggleImageModal}
-                        backdropOpacity={0.9}
-                    >
-                        <Image 
-                            source={getImg ? { uri: getImg } : placeholder_aed}
-                            resizeMode='contain'
-                            style={{ width: '100%', height: image.height * ratio}}
-                        />
-                    </Modal>
 
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width:'100%', height:'100%', backgroundColor: '#192734', padding:'2.5%'}}>
+                    <View style={styles.smallViewContainer}>
                         <View style={{flex: 1}}>
-                            <Text style={styles.name}>{getName}</Text>
+                            <Text style={styles.title}>{getName}</Text>
                             {getAddress.map((value, index) => (
                                     <Text key={index} style={styles.text}>{value}</Text>
                             ))}
@@ -503,7 +500,7 @@ const Home = ({navigation, route}) => {
                 {fullOpenVisible ? (
                     <Animated.View style={[styles.fullOpenView, fullOpenViewOpacityChange]}>
                         <AEDImageContainer style={styles.aedFull} onPress={toggleImageModal} base64Image={getImg} />
-                        <ScrollView style={{flexGrow: 0, height: '60%', width: '100%'}} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
+                        <ScrollView style={styles.informationScrollView} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
 
                             <HeaderWithInfo title={'Name'}>
                                 <Text style={styles.text}>{getName}</Text>
@@ -512,27 +509,27 @@ const Home = ({navigation, route}) => {
                            
                             <HeaderWithInfo title={'Address'} split={true}>
                                 <> 
-                                    <Text style={styles.name}>Address</Text>
+                                    <Text style={styles.subTitle}>Address</Text>
                                     <Text style={styles.text}>{getName}</Text>
                                     {getAddress.map((value, index) => (
                                         <Text key={index} style={styles.text}>{value}</Text>
                                     ))}
                                 </>
                                 <> 
-                                    <Text style={styles.name}>Floor</Text>
+                                    <Text style={styles.subTitle}>Floor</Text>
                                     <Text style={styles.text}>{getFloor}</Text>
                                 </>
                             </HeaderWithInfo>
 
                             <HeaderWithInfo title={'Opening Times'} split={true}>
                                 <> 
-                                    <Text style={styles.name}>Day</Text>
+                                    <Text style={styles.subTitle}>Day</Text>
                                     {openingTimesOrder.map((value, index) => (
                                         <Text key={index} style={styles.text}>{value}</Text>
                                     ))}
                                 </>
                                 <> 
-                                    <Text style={styles.name}></Text>
+                                    <Text style={styles.title}></Text>
                                     {getOpeningTimes.map((value, index) => (
                                         <Text key={index} style={styles.text}>{value}</Text>
                                     ))}
@@ -552,22 +549,21 @@ const Home = ({navigation, route}) => {
                 ) : null }
                 {displayDirections ? (
                     <Animated.View style={[styles.directionView, directonViewOpacityChange]}>
-                        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
-                            <View style={{minHeight: 25, flexDirection: 'column',backgroundColor: '#192734',marginBottom: 3,paddingHorizontal: '2%', paddingVertical: '1%', flex: 1, alignItems: 'center', marginRight: 3}}>
-                                <Text style={styles.name}>{getName}</Text>
+                        <View style={styles.directionTopContainer}>
+                            <View style={[styles.textContainer, { marginRight: 3}]}>
+                                <Text style={styles.title}>{getName}</Text>
                             </View>
-                            <View style={{minHeight: 25, flexDirection: 'column', backgroundColor: '#192734', marginBottom: 3,paddingHorizontal: '2%', paddingVertical: '1%', flex: 1, alignItems: 'center'}}>
-                                <Text style={styles.name}>{distance}</Text>
+                            <View style={styles.textContainer}>
+                                <Text style={styles.title}>{distance}</Text>
                             </View>
                         </View>
                          
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between',  flex:1}}>
-
-                            <View style={{ flex:1, backgroundColor: '#192734', paddingHorizontal: '2%', paddingVertical: '1%', alignItems: 'center', marginRight: 3}}>
+                        <View style={styles.directionBottomContainer}>
+                            <View style={[styles.imageContainer, {marginRight: 3}]}>
                                 <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
                             </View>
 
-                            <View style={{ flex:1, backgroundColor: '#192734', paddingHorizontal: '2%', paddingVertical: '1%', alignItems: 'center', justifyContent: 'center'}}>
+                            <View style={styles.imageContainer}>
                                 <Image 
                                     source={
                                         maneuver == 'left' 
@@ -588,225 +584,11 @@ const Home = ({navigation, route}) => {
                 <View style={styles.curvedIcon}/>
             </Animated.View>
         </PanGestureHandler>
-        <Animated.View style={[{width: '100%', height: '17%', flexDirection: 'column', backgroundColor: '#15202b', paddingTop: '2%',justifyContent: 'flex-start', alignItems: 'center', position: 'absolute',}, locateButtonStyle]}>
+        <Animated.View style={[styles.locateButtonContainer, locateButtonStyle]}>
             <LocateIcon style={styles.locateButton} onPress={startDirections}/>
         </Animated.View>
     </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'flex-end',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        backgroundColor: '#15202b',
-    },
-
-    buttonContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        width: '45%',
-        height: '20%',
-        position: 'absolute',
-        right: 5
-    },
-
-    button:{
-        alignItems: 'center',
-        justifyContent:'space-between',
-        flexDirection: 'row',
-        backgroundColor: '#018489',
-        width:'100%',
-        height: '60%',
-        borderRadius: 100,
-        paddingLeft:'10%',
-        paddingRight: '10%',
-        borderWidth: 4,
-        borderColor: '#15202b',
-    },
-
-    map: {
-      height:'100%',
-      width:'100%',
-    },
-    
-    animatedView: {
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        height: '100%',
-        width: '100%',
-        backgroundColor: '#15202b',
-        paddingLeft: (screenHeight * 0.0125),
-        paddingRight: (screenHeight * 0.0125),
-        position:'absolute',
-    },
-  
-    smallView: {
-        paddingBottom: (screenHeight * 0.0125),
-        paddingTop: (screenHeight * 0.0125),
-        flexDirection: 'column', 
-        justifyContent: 'space-between', 
-        alignItems: 'flex-end', 
-        width:'100%', 
-        height:'20%' , 
-        
-    },
-
-    fullOpenView: {
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        height: '100%',
-        width: '100%',
-        position:'absolute',
-    },
-
-    directionView: {
-     
-        flexDirection:'column',
-        height: '30%',
-        width: '100%',
-        flexWrap: 'wrap',
-        opacity: 0,
-        paddingBottom: (screenHeight * 0.0125),
-        paddingTop: (screenHeight * 0.0125),
-    },
-  
-    aedSmall: {
-        height: '100%',
-        aspectRatio: 1,
-        borderRadius: 100,
-        overflow: 'hidden',
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-    },
-
-    aedFull: {
-        height: '20%',
-        aspectRatio: 1,
-        borderRadius: 100,
-        overflow: 'hidden',
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-        marginTop: '5%',
-        marginBottom: '5%',
-    },
-
-    aedDirection: {
-        flexGrow: 1,
-        flex:1,
-        borderRadius: 100,
-        overflow: 'hidden',
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-     
-    },
-  
-    infoContainer:{
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        height: '100%' ,
-        width: '100%',
-    },
-
-    infoContainerPadding: {
-        backgroundColor: '#192734',
-        paddingLeft: '5%',
-        paddingRight: '5%',
-        flexDirection: 'column'
-    },
-
-    mediumFullInfoContainer: {
-        flexDirection: 'column',
-        width: '100%',
-        marginBottom: '3%',
-    },
-
-    directionTitleContainer: {
-        flexDirection: 'row',
-        width: '100%',
-      },
-
-    subContainer: {
-        minHeight: 25,
-        flexDirection: 'row',
-        backgroundColor: '#192734',
-        marginBottom: 3,
-        paddingLeft: 5,
-    },
-
-    subContainer2: {
-        minHeight: 25,
-        width: '50%',
-        backgroundColor: '#192734',
-        paddingLeft: 5,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
-    splitInfoContainer:{
-        alignContent: 'center',
-        width: '50%',
-    },
-
-    directionContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '50%',
-        height: '100%',
-        backgroundColor: '#192734',
-    },
-
-    directionContainerMargin: {
-        marginLeft: 3,
-    },
-  
-    locateButton:{
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '30%',
-        height: '50%',
-        backgroundColor: '#018489',
-        marginBottom: (screenHeight * 0.025),
-        borderRadius: 10,
-    },
-  
-    textContainer:{
-        justifyContent: 'center',
-    },
-  
-    text:{
-        textAlign:'left',
-        color: '#FFFFFF',
-        fontSize: RFValue(14),
-    },
-
-    name:{
-        textAlign:'left',
-        color: '#FFFFFF',
-        fontSize: RFValue(14),
-        fontWeight: 'bold',
-        marginBottom: '2%',
-        
-    },
-  
-      modalImage: {
-        margin: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-
-    curvedIcon: {
-        marginTop:((screenHeight * 0.0125) /2 ) - 2 ,
-        backgroundColor: '#FFFFFF',
-        width: 50,
-        height: 4,
-        borderRadius: 100,
-        position: 'absolute',
-    },
-
-});
 
 export default Home;

@@ -2,20 +2,20 @@ import React, {useState} from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import ImageTextButton from '../touchables/image_text_button';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-//import externalStyle from '../style/externalStyle';
+import styles from '../../styles';
 
 const screenHeight = Dimensions.get('window').height
-const HeaderWithInfo = ({title, split = false, children, style}) => {
+const HeaderWithInfo = ({title, split = false, children, textContainerStyle}) => {
 
     return (
-        <View style={[styles.headerInfoContainer, style]}>
-            <View style={styles.textContainer}>
+        <View style={[styles.headerInfoContainer]}>
+            <View style={[styles.textContainer, textContainerStyle]}>
                 <Text style={styles.title}>{title}</Text>
             </View>
             {split ? 
-                <View style = {styles.subContainer}>
+                <View style = {{flexDirection: 'row'}}>
                     {React.Children.map(children, (child, index) => (
-                        <View style={styles.textContainer}>
+                        <View style={[styles.textContainer, textContainerStyle]}>
                             {child}
                         </View>
                     ))}
@@ -31,44 +31,5 @@ const HeaderWithInfo = ({title, split = false, children, style}) => {
         
     );
 };
-
-const styles = StyleSheet.create({
-
-    headerInfoContainer: {
-        flexDirection: 'column',
-        marginBottom: '3%',
-    },
-
-    textContainer: {
-        minHeight: 25,
-        flexDirection: 'column',
-        backgroundColor: '#192734',
-        marginBottom: 3,
-        paddingHorizontal: '2%',
-        paddingVertical: '1%',
-        flex:1,
-        
-        //alignItems:'center' 
-    },
-
-    title:{
-        textAlign:'left',
-        color: '#FFFFFF',
-        fontSize: RFValue(14),
-        fontWeight: 'bold',
-    },
-
-    text:{
-        textAlign:'left',
-        color: '#FFFFFF',
-        fontSize: RFValue(14),
-    },
-
-    subContainer: {
-        flexDirection: 'row',
-        backgroundColor: '#192734',
-    },
-
-});
 
 export default HeaderWithInfo;

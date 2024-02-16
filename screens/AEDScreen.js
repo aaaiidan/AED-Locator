@@ -1,20 +1,13 @@
-import React, { useState} from 'react';
-import { View, Image, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import PinIcon from '../components/touchables/pin';
+import React from 'react';
+import { View, ScrollView } from 'react-native';
 import ImageTextButton from '../components/touchables/image_text_button';
-//import externalStyle from '../style/externalStyle';
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { useData } from '../DataContext';
-
-
-const screenHeight = Dimensions.get('window').height
+import styles from '../styles';
 
 
 const AEDScreen = ({navigation}) => {
-
     const{ locations, aeds, imagesBase64 } = useData();
-
-   
+  
     return (
         <View style={styles.container}>
             <ScrollView >
@@ -26,42 +19,11 @@ const AEDScreen = ({navigation}) => {
                         }
                     });
                     return(
-                        <ImageTextButton key={location.id} image={img} imageStyle={styles.imageStyle} text={location.Name} textStyle={styles.text} navigation={navigation} screen={'Map'} action={location} circle={true}/>
+                        <ImageTextButton key={location.id} image={img} imageStyle={styles.defaultImageStyle} text={location.Name} textStyle={styles.largeTitle} navigation={navigation} screen={'Map'} action={location} circle={true}/>
                     )
                 })}
             </ScrollView>
         </View>
-        
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#15202b',
-        paddingLeft: (screenHeight * 0.025),
-        paddingRight: (screenHeight * 0.025),
-        paddingTop: (screenHeight * 0.025) ,
-        paddingBottom: (screenHeight * 0.025),
-    },
-    
-    imageStyle: {
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-    },
-
-    text:{
-        flex: 1,
-        textAlign:'right',
-        color: '#FFFFFF',
-        fontSize: RFValue(24),
-        fontWeight: 'bold',
-      
-    },
-    
-  
-   
-});
-    
 export default AEDScreen;
