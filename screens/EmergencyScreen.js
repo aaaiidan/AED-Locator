@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import { View, ScrollView, TouchableOpacity , Text, StyleSheet, Image, Dimensions, Linking } from 'react-native';
+import { View, ScrollView, TouchableOpacity , Text, Image, Linking } from 'react-native';
 import jsonData from '../assets/JSON/emergency_text.json'
 import { useData } from '../DataContext';
 import HeaderWithInfo from '../components/presentation/header_with_info';
 import styles from '../styles';
 
-const screenHeight = Dimensions.get('window').height
+
 
 
 const EmergencyScreen = ({navigation}) => {
@@ -72,7 +72,7 @@ const EmergencyScreen = ({navigation}) => {
             {switchSideLeft ? (
                 <ScrollView>
 
-                <HeaderWithInfo title={'What to do in a heart emergency'} textContainerStyle={styles.textContainerCentered}>
+                <HeaderWithInfo title={'What to do in a heart emergency'} titleContainerStyle={styles.textContainerCentered}>
                     <Text style={[styles.text, styles.paragraph]}>{jsonData.firstParagraph}</Text>
                     <View style={styles.bulletPointContainer}>
                         <Text style={styles.text}>1.</Text>
@@ -88,32 +88,43 @@ const EmergencyScreen = ({navigation}) => {
                     </View>
                 </HeaderWithInfo>
 
-                <HeaderWithInfo title={'What to do in a heart emergency'} textContainerStyle={styles.textContainerCentered}>
-                    <TouchableOpacity style={[styles.phoneButton, {backgroundColor: '#018489', }]} 
-                        onPress={() => callNumber(0)}
+                <HeaderWithInfo title={'Closets AED'} titleContainerStyle={styles.textContainerCentered} childContainerStyle={styles.emergencyScreenButtonContainer}>
+                    <TouchableOpacity style={[styles.phoneButton, {backgroundColor: '#018489'}]} 
+                        onPress={() => navigation.navigate('TabNavigator', {screen: 'Map', params: {action: 'closest'}})}
+                    > 
+                        <Image 
+                            source={ require('../assets/images/nearby.png') }
+                            resizeMode='contain'
+                            style={{height: '75%', width: '20%'}}
+                        />
+                        <Text style={styles.phoneNumberText}>AED</Text>
+                    </TouchableOpacity>
+                </HeaderWithInfo>
+
+                <HeaderWithInfo title={'Emergency Contacts'} titleContainerStyle={styles.textContainerCentered} childContainerStyle={styles.emergencyScreenButtonContainer}>
+                    <TouchableOpacity style={[styles.phoneButton, {backgroundColor: '#AB1010', marginBottom: '10%'}]} 
+                        onPress={() => callNumber(0)} //999
                     > 
                         <Image 
                             source={ require('../assets/images/phone.png') }
                             resizeMode='contain'
                             style={{height: '75%', width: '20%'}}
                         />
-                        <Text  style={styles.phoneNumberText}>+44 (0) 141 548 2222</Text>
+                        <Text style={styles.phoneNumberText}>999</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={[styles.phoneButton, {backgroundColor: '#018489'}]} 
+                        onPress={() => callNumber(0)} //+44 (0) 141 548 2222
+                    > 
+                        <Image 
+                            source={ require('../assets/images/phone.png') }
+                            resizeMode='contain'
+                            style={{height: '75%', width: '20%'}}
+                        />
+                        <Text  style={styles.phoneNumberText}>Campus Security</Text>
                     </TouchableOpacity>
                 </HeaderWithInfo>
 
-                <HeaderWithInfo title={'What to do in a heart emergency'} textContainerStyle={styles.textContainerCentered}>
-                <TouchableOpacity style={[styles.phoneButton, {backgroundColor: '#AB1010'}]} 
-                        onPress={() => callNumber(0)}
-                        > 
-                            <Image 
-                                source={ require('../assets/images/phone.png') }
-                                resizeMode='contain'
-                                style={{height: '75%', width: '20%'}}
-                            />
-                            <Text style={styles.phoneNumberText}>999</Text>
-                        </TouchableOpacity>
-                </HeaderWithInfo>
-                
 
                 </ScrollView>
             ) : (

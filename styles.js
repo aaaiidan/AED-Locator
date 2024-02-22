@@ -56,18 +56,18 @@ export default StyleSheet.create({
         justifyContent: 'center'
     },
 
-    button:{
-        alignItems: 'center',
-        justifyContent:'space-between',
-        flexDirection: 'row',
+    closestAedButton:{
         backgroundColor: '#018489',
-        width:'100%',
-        height: '60%',
+        height: '7.5%',
+        aspectRatio: 1,
         borderRadius: 100,
-        paddingLeft:'10%',
-        paddingRight: '10%',
-        borderWidth: 4,
+        borderWidth: 3,
         borderColor: '#15202b',
+        position: 'absolute',
+        left: '1%',
+        top:'10%',
+        padding: '15%',
+        justifyContent: 'center'
     },
 
     allAvailableSpace: {
@@ -251,7 +251,20 @@ export default StyleSheet.create({
         paddingHorizontal: '2%', 
         paddingVertical: '1%', 
         flex: 1, 
-        alignItems: 'center'
+        alignItems: 'center',
+    },
+
+    emergencyScreenButtonContainer: {
+        minHeight: 25, 
+        flexDirection: 'column',
+        backgroundColor: '#192734',
+        marginBottom: 3,
+        paddingHorizontal: '2%', 
+        paddingVertical: '1%', 
+        flex: 1, 
+        alignItems: 'center',
+        paddingHorizontal: '5%',
+        paddingVertical: '5%'
     },
 
     imageContainer: {
@@ -336,7 +349,8 @@ export default StyleSheet.create({
         borderRadius: 10, 
         flexDirection: 'row', 
         alignItems: 'center', 
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        
     },
 
     subContainer: {

@@ -1,12 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import React from 'react';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import styles from '../../styles';
-
-const screenHeight = Dimensions.get('window').height
-
-
-
 
 const ImageTextButton = ({navigation, screen, action, image, text, imageStyle, textStyle, circle = false}) => {
 

@@ -252,9 +252,17 @@ const Home = ({navigation, route}) => {
 
 
     useEffect(() => {
-        if (route.params && route.params.action) {
-            markerSetup(route.params.action)
-        } 
+
+        if(route.params){
+            console.log(route.params)
+            if (route.params.action == 'closest') {
+                setTimeout(() => {
+                    closestAED();
+                }, 1); 
+            } else if (route.params.action) {
+                markerSetup(route.params.action)
+            }
+        }
     }, [route.params]);
 
 
@@ -394,7 +402,7 @@ const Home = ({navigation, route}) => {
         legs.forEach((leg) => {
             const steps = leg.steps || [];
             steps.forEach((step) => {
-               // console.log('steps - ', step);
+                console.log('steps - ', step);
             });
         });
       };
@@ -491,30 +499,28 @@ const Home = ({navigation, route}) => {
                     strokeColor="#018489"
                     onReady={onDirectionReady}
                     mode='WALKING'
+                    resetOnChange = {false}
                 />
             ) : null} 
         </MapView>
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={closestAED} >
-                <Image 
-                    source={require('../assets/images/nearby.png')}
-                    resizeMode='contain'
-                    style={{height: '100%', width: '25%'}}
-                />
-                <Text style={styles.title}>Nearest AED</Text>
-            </TouchableOpacity>
-        </View>
-
-        
-            <TouchableOpacity style={styles.cprButton} onPress={cprAnimation}>
-                <Animated.Image 
-                    source={require('../assets/images/heartWhite.png')}
-                    resizeMode='contain'
-                    style={[{height: '100%', width: '100%'}, cprImageStyle]}
-                />
-            </TouchableOpacity>
+      
+        <TouchableOpacity style={styles.closestAedButton} onPress={closestAED} >
+            <Image 
+                source={require('../assets/images/nearby.png')}
+                resizeMode='contain'
+                style={{height: '100%', width: '100%'}}
+            />
+            
+        </TouchableOpacity>
+       
+        <TouchableOpacity style={styles.cprButton} onPress={cprAnimation}>
+            <Animated.Image 
+                source={ cprAnimationActive ? require('../assets/images/heartRed.png') : require('../assets/images/heartWhite.png')}
+                resizeMode='contain'
+                style={[{height: '100%', width: '100%'}, cprImageStyle]}
+            />
+        </TouchableOpacity>
     
-
         <PanGestureHandler onGestureEvent={onGestureEvent} >
             <Animated.View style={[styles.animatedView, animatedStyle]}>
             {!displayDirections ? (
@@ -602,10 +608,10 @@ const Home = ({navigation, route}) => {
                             <View style={styles.imageContainer}>
                                 <Image 
                                     source={
-                                        maneuver == 'left' 
+                                        maneuver && maneuver.includes('left')
                                         ? require('../assets/images/turn_left.png')
 
-                                        : maneuver == 'right' 
+                                        : maneuver && maneuver.includes('right') 
                                             ? require('../assets/images/turn_right.png')
                                             : require('../assets/images/straight_arrow.png')
                                     }
