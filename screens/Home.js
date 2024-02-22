@@ -4,7 +4,7 @@ import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
 import AEDImageContainer from '../components/touchables/aed_image_container';
-import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS } from 'react-native-reanimated';
+import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS, withRepeat, withSequence } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
@@ -54,6 +54,9 @@ const Home = ({navigation, route}) => {
     const gestureState = useSharedValue(fullOpenY);
     const velocityFlag = useSharedValue(false);
     const [fullOpenVisible, setFullOpenVisible] = useState(false);
+
+    const cprScale = useSharedValue(1)
+    const [cprAnimationActive, setCprAnimationActive] = useState(false);
 
     //Scrollview variables
     const [scrollEnabled, setScrollEnabled] = useState(false);
@@ -209,7 +212,13 @@ const Home = ({navigation, route}) => {
         };
       });
 
-      const directionViewChange = () => {
+    const cprImageStyle = useAnimatedStyle(() => {
+        return{
+            transform: [{scale: cprScale.value}]
+        }
+    });
+
+    const directionViewChange = () => {
         translateY.value = withTiming(directionOpenY , {duration:750}); // Slide up to position smallOpenY
         markerRegion( {latitude: 55.8621133244897, longitude: -4.2423899331605615 }, {latitudeDelta: 0.01, longitudeDelta: 0.005}, 2000);
 
@@ -218,22 +227,41 @@ const Home = ({navigation, route}) => {
             markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
         }, 2500); 
 
-      };
+    };
 
-      useEffect(() => {
+    const cprAnimation = () =>{
+        setCprSoundActivated(!cprSoundActivated)
+        setCprAnimationActive(!cprAnimationActive)
+    }
+
+    useEffect(() => {
+        if(cprAnimationActive){
+            console.log('start animation')
+            cprScale.value = withRepeat(
+                withSequence(
+                    withTiming(1.2, { duration: 545 }),
+                    withTiming(1, { duration:  545 })
+                ),
+                -1, // Infinite repeats
+            );
+        } else {
+            // Stop animation
+            cprScale.value = withTiming(1, { duration: 500 }); // Reset to original scale
+        }
+    }, [cprAnimationActive]);
+
+
+    useEffect(() => {
         if (route.params && route.params.action) {
             markerSetup(route.params.action)
         } 
-      }, [route.params]);
-
-
-
+    }, [route.params]);
 
 
     // ==========================================
     // =            Handling data               =
     // ==========================================
-    const{ locations, aeds, imagesBase64 } = useData();
+    const{ locations, aeds, imagesBase64, cprSoundActivated, setCprSoundActivated } = useData();
 
     const [getAddress, setAddress] = useState([]);
     const [getName, setName] = useState('Unavailable');
@@ -293,6 +321,7 @@ const Home = ({navigation, route}) => {
 
     useEffect(() => {
         setRatio(screenWdidth/image.width); //Adjust enhanced image height depending on width
+        setCprAnimationActive(cprSoundActivated);
     },[]);
 
     useEffect(() => {
@@ -406,10 +435,6 @@ const Home = ({navigation, route}) => {
     
     
 
-
-   
-
-
     return (
     <View style={styles.homeContainer} onLayout={onContainerLayout}>
         <Modal 
@@ -479,6 +504,17 @@ const Home = ({navigation, route}) => {
                 <Text style={styles.title}>Nearest AED</Text>
             </TouchableOpacity>
         </View>
+
+        
+            <TouchableOpacity style={styles.cprButton} onPress={cprAnimation}>
+                <Animated.Image 
+                    source={require('../assets/images/heartWhite.png')}
+                    resizeMode='contain'
+                    style={[{height: '100%', width: '100%'}, cprImageStyle]}
+                />
+            </TouchableOpacity>
+    
+
         <PanGestureHandler onGestureEvent={onGestureEvent} >
             <Animated.View style={[styles.animatedView, animatedStyle]}>
             {!displayDirections ? (

@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, ScrollView, TouchableOpacity , Text, StyleSheet, Image, Dimensions, Linking } from 'react-native';
 import jsonData from '../assets/JSON/emergency_text.json'
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import { useData } from '../DataContext';
 import HeaderWithInfo from '../components/presentation/header_with_info';
 import styles from '../styles';
 
@@ -10,6 +10,7 @@ const screenHeight = Dimensions.get('window').height
 
 const EmergencyScreen = ({navigation}) => {
 
+    const{ setCprSoundActivated } = useData();
     const [switchSideLeft, setSwitchSideLeft] = useState(true);
 
 
@@ -37,6 +38,16 @@ const EmergencyScreen = ({navigation}) => {
           })
           .catch(err => console.log(err));
     }
+
+  
+
+    useEffect(() => {
+        if(!switchSideLeft){
+            setCprSoundActivated(true)
+        }
+    }, [switchSideLeft]);
+
+
 
     return (
         <View style={styles.container}>

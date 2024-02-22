@@ -28,7 +28,32 @@ export default StyleSheet.create({
         width: '45%',
         height: '20%',
         position: 'absolute',
-        right: 5
+        right: '1%',
+    },
+
+    cprSoundButtonContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        width: '45%',
+        height: '20%',
+        position: 'absolute',
+        right: '1%',
+        top:'0%',
+       
+    },
+
+    cprButton: {
+        backgroundColor: '#018489',
+        height: '7.5%',
+        aspectRatio: 1,
+        borderRadius: 100,
+        borderWidth: 3,
+        borderColor: '#15202b',
+        position: 'absolute',
+        left: '1%',
+        top:'1%',
+        padding: '15%',
+        justifyContent: 'center'
     },
 
     button:{

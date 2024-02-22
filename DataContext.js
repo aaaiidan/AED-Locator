@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './services/firebaseConfig';
 import { getStorage, ref, getBlob} from 'firebase/storage'
+import { Audio } from 'expo-av';
 
 
 const DataContext = createContext();
@@ -10,12 +11,16 @@ export const DataProvider = ({ children }) => {
     const [locations, setLocations] = useState([]);
     const [aeds, setAeds] = useState([]);
     const [imagesBase64, setImagesBase64] = useState({});
+    const [cprSoundActivated, setCprSoundActivated] = useState(false);
+    const [sound, setSound] = useState(null);
 
     //Values to be passed to children
     const value = {
         locations,
         aeds,
-        imagesBase64
+        imagesBase64,
+        cprSoundActivated,
+        setCprSoundActivated
     };
 
     const loadData = async (collectionName) => {
@@ -79,6 +84,25 @@ export const DataProvider = ({ children }) => {
         }
         fetchData();
     },[]);
+
+    async function playSound() {
+        const { sound: newSound } = await Audio.Sound.createAsync(require('./assets/sounds/cpr.mp3'));
+        setSound(newSound)
+        await newSound.playAsync();
+        newSound.setIsLoopingAsync(true);
+    }
+
+    useEffect(() => {
+        if(cprSoundActivated){
+           playSound();
+        } else {
+            if(sound) {
+                sound.setIsLoopingAsync(false);
+                sound.unloadAsync();
+            }
+        }
+    }, [cprSoundActivated]);
+
 
    
 
