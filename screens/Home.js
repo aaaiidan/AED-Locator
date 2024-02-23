@@ -394,15 +394,15 @@ const Home = ({navigation, route}) => {
 
     const onDirectionReady = (result) => {
          // Extract legs and steps from the result
-         const legs = result.legs || [];
+         const legs = result.legs ;
 
          setDistance(legs[0].steps[0].distance.text);
-         setManeuver(legs[0].steps[0].maneuver);
+         setManeuver(legs[0].steps[1].maneuver);
 
         legs.forEach((leg) => {
-            const steps = leg.steps || [];
+            const steps = leg.steps ;
             steps.forEach((step) => {
-                console.log('steps - ', step);
+               // console.log('steps - ', step);
             });
         });
       };
@@ -440,7 +440,6 @@ const Home = ({navigation, route}) => {
             reachedAED();
         }
     }, [userLocation]);
-    
     
 
     return (
