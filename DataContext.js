@@ -10,7 +10,8 @@ const DataContext = createContext();
 export const DataProvider = ({ children }) => {
     const [locations, setLocations] = useState([]);
     const [aeds, setAeds] = useState([]);
-    const [imagesBase64, setImagesBase64] = useState({});
+    const [coverImagesBase64, setCoverImagesBase64] = useState({});
+    const [indoorImagesBase64, setIndoorImagesBase64] = useState({});
     const [cprSoundActivated, setCprSoundActivated] = useState(false);
     const [sound, setSound] = useState(null);
 
@@ -18,7 +19,8 @@ export const DataProvider = ({ children }) => {
     const value = {
         locations,
         aeds,
-        imagesBase64,
+        coverImagesBase64,
+        indoorImagesBase64,
         cprSoundActivated,
         setCprSoundActivated
     };
@@ -69,14 +71,28 @@ export const DataProvider = ({ children }) => {
                 setAeds(aeds);
 
                 const storageDataUpdates = {};
+                const storageDataUpdates2 = {};
+
                 await Promise.all(aeds.map(async (aed) => {
                     if (aed.Image) {
                         const imageData = await fetchImages(aed.Image);
                         storageDataUpdates[aed.id] = imageData;
                     }
+                    if (aed.IndoorDirections) {
+                        storageDataUpdates2[aed.id] = new Array(aed.IndoorDirections.length).fill(null);
+
+                        await Promise.all(aed.IndoorDirections.map(async (element, index) => {
+                            if (element.Image) {
+                                const imageData = await fetchImages(element.Image);
+                                storageDataUpdates2[aed.id][index] = imageData;
+                            }
+                        }));
+                    }
+                    
                 }));
 
-                setImagesBase64(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates }));
+                setCoverImagesBase64(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates }));
+                setIndoorImagesBase64(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates2 }));
                 
             } catch (error) {
 
@@ -102,6 +118,10 @@ export const DataProvider = ({ children }) => {
             }
         }
     }, [cprSoundActivated]);
+
+    useEffect(() => {
+        console.log(indoorImagesBase64['CE45SkrXSDCenDqYT9Hz'].length)
+    }, [indoorImagesBase64]);
 
 
    

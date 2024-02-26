@@ -70,6 +70,28 @@ export default StyleSheet.create({
         justifyContent: 'center'
     },
 
+    arrowRight: {
+        width: screenWdidth / 7,
+        aspectRatio: 1,
+        position: 'absolute',
+        right: '-7%',
+        top:'50%',
+        padding: '15%',
+        justifyContent: 'center',
+        transform: [{rotate: '270deg'}]
+    },
+
+    arrowLeft: {
+        width: screenWdidth / 7,
+        aspectRatio: 1,
+        position: 'absolute',
+        left: '-7%',
+        top:'50%',
+        padding: '15%',
+        justifyContent: 'center',
+        transform: [{rotate: '90deg'}]
+    },
+
     allAvailableSpace: {
         height:'100%',
         width:'100%',
@@ -119,10 +141,11 @@ export default StyleSheet.create({
         justifyContent: 'flex-start',
         height: '100%',
         width: '100%',
-        paddingLeft: (screenHeight * 0.0125),
-        paddingRight: (screenHeight * 0.0125),
-        paddingBottom: (screenHeight * 0.0125),
-        paddingTop: (screenHeight * 0.025),
+        flex:1,
+        paddingLeft: (screenHeight * 0.03),
+        paddingRight: (screenHeight * 0.03),
+        paddingTop: (screenHeight * 0.03),
+        paddingBottom: (screenHeight * 0.015),
         position:'absolute',
     },
   
@@ -254,25 +277,12 @@ export default StyleSheet.create({
         flex:1
     },
 
-    destinationImageContainer:{
-        height:'100%', 
-        flexDirection: 'column',
-        backgroundColor: '#192734',
-        marginBottom: 3,
-        paddingLeft: (screenHeight * 0.03),
-        paddingRight: (screenHeight * 0.03),
-        paddingTop: (screenHeight * 0.03) ,
-        paddingBottom: (screenHeight * 0.03),
-    },
-
     textContainerCentered:{
         minHeight: 25, 
         flexDirection: 'column',
         backgroundColor: '#192734',
-        marginBottom: 3,
-        paddingHorizontal: '2%', 
+        marginBottom: 3, 
         paddingVertical: '1%', 
-        flex:1,
         alignItems: 'center',
     },
 
@@ -451,6 +461,8 @@ export default StyleSheet.create({
     },
 
     headerInfoContainer: {
+        flex:1,
+        height: '100%',
         flexDirection: 'column',
         marginBottom: '3%',
     },
@@ -494,11 +506,24 @@ export default StyleSheet.create({
     destinationImageBorder: {
         height:'100%',
         width: '100%',
-        padding: '2%',
+        padding: '5%',
         backgroundColor: '#1f3141',
         margin: '1%',
         justifyContent: 'center',
-    }
+    },
+
+    destinationImageContainer:{
+        flex:1,
+        flexDirection: 'column',
+        backgroundColor: '#192734',
+        marginBottom: 3,
+        paddingLeft: (screenHeight * 0.03),
+        paddingRight: (screenHeight * 0.03),
+        paddingTop: (screenHeight * 0.03) ,
+        paddingBottom: (screenHeight * 0.03),
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 
 
 });
