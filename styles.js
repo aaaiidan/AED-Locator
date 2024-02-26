@@ -114,6 +114,17 @@ export default StyleSheet.create({
         paddingBottom: (screenHeight * 0.0125),
         paddingTop: (screenHeight * 0.0125),
     },
+
+    destinationView: {
+        justifyContent: 'flex-start',
+        height: '100%',
+        width: '100%',
+        paddingLeft: (screenHeight * 0.0125),
+        paddingRight: (screenHeight * 0.0125),
+        paddingBottom: (screenHeight * 0.0125),
+        paddingTop: (screenHeight * 0.025),
+        position:'absolute',
+    },
   
     aedSmall: {
         height: '100%',
@@ -240,7 +251,18 @@ export default StyleSheet.create({
         marginBottom: 3,
         paddingHorizontal: '2%', 
         paddingVertical: '1%', 
-        flex: 1, 
+        flex:1
+    },
+
+    destinationImageContainer:{
+        height:'100%', 
+        flexDirection: 'column',
+        backgroundColor: '#192734',
+        marginBottom: 3,
+        paddingLeft: (screenHeight * 0.03),
+        paddingRight: (screenHeight * 0.03),
+        paddingTop: (screenHeight * 0.03) ,
+        paddingBottom: (screenHeight * 0.03),
     },
 
     textContainerCentered:{
@@ -250,7 +272,7 @@ export default StyleSheet.create({
         marginBottom: 3,
         paddingHorizontal: '2%', 
         paddingVertical: '1%', 
-        flex: 1, 
+        flex:1,
         alignItems: 'center',
     },
 
@@ -463,6 +485,15 @@ export default StyleSheet.create({
     imageBorder: {
         width: '30%',
         height: screenHeight/5,
+        padding: '2%',
+        backgroundColor: '#1f3141',
+        margin: '1%',
+        justifyContent: 'center',
+    },
+
+    destinationImageBorder: {
+        height:'100%',
+        width: '100%',
         padding: '2%',
         backgroundColor: '#1f3141',
         margin: '1%',

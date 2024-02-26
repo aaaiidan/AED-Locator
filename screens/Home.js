@@ -13,6 +13,7 @@ import haversine from 'haversine';
 import HeaderWithInfo from '../components/presentation/header_with_info';
 import { useData } from '../DataContext';
 import styles from '../styles';
+import ImageInsideInfo from '../components/presentation/image_inside_info';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWdidth = Dimensions.get('window').width;
@@ -88,7 +89,7 @@ const Home = ({navigation, route}) => {
                 runOnJS(setScrollEnabled)(false)
             }
 
-            if(translateY.value < (80/100) * containerHeight && fullOpenVisible == false){
+            if(translateY.value < (80/100) * containerHeight && !fullOpenVisible && !atDestination){
                 runOnJS(setFullOpenVisible)(true)
             }
 
@@ -121,7 +122,29 @@ const Home = ({navigation, route}) => {
 		  	gestureState.value = 0; // Gesture is inactive 
             ctx.lastDirectionChangeY = translateY.value;
             if (!velocityFlag.value){
-                if (!displayDirections) {
+                 if (displayDirections) {
+                    if (translateY.value > (75/100) * containerHeight) { // 75% to 100% - Close
+                        translateY.value = withTiming(closedY);
+                        runOnJS(setDisplayDirections)(false);
+                        runOnJS(setFullOpenVisible)(false)
+                    } else if (translateY.value < (75/100) * containerHeight && translateY.value > (65/100)*containerHeight) { 
+                        translateY.value = withTiming(directionOpenY);
+                    } else  {
+                        translateY.value = withTiming(fullOpenY);
+                        runOnJS(setDisplayDirections)(false);
+                    }
+               // }else if(atDestination){
+                   // if(translateY.value > (30/100) * containerHeight){
+                     //   translateY.value = withTiming(closedY);
+                     //   runOnJS(setAtDestination(false))
+                  //  } else {
+                     //   translateY.value = withTiming(fullOpenY);
+                   // }
+                } else {
+                    
+
+
+
                     if(translateY.value > (85/100) * containerHeight){ // 85% to 100%
                         translateY.value = withTiming(closedY);
                         runOnJS(setFullOpenVisible)(false)
@@ -130,26 +153,11 @@ const Home = ({navigation, route}) => {
                         runOnJS(setFullOpenVisible)(false)
                     } else if (translateY.value < (75/100) * containerHeight && isPositive){ //less than 75% && postive
                         translateY.value = withTiming(fullOpenY);
-                    } else if (translateY.value > (30/100) * containerHeight && !isPositive){ //less than 80% && negative direction
+                    } else if (translateY.value > (30/100) * containerHeight && !isPositive){ //less than 30% && negative direction
                         translateY.value = withTiming(smallOpenY);
                         runOnJS(setFullOpenVisible)(false)
                     } else {  
                         translateY.value = withTiming(fullOpenY);
-                    }
-
-
-                } else {
-                    if (translateY.value > (75/100) * containerHeight) { // 75% to 100% - Close
-                        translateY.value = withTiming(closedY);
-                        runOnJS(setDisplayDirections)(false);
-                        runOnJS(setFullOpenVisible)(false)
-                        runOnJS(setAtDestination)(false)
-                    } else if (translateY.value < (75/100) * containerHeight && translateY.value > (65/100)*containerHeight) { 
-                        translateY.value = withTiming(directionOpenY);
-                    } else  {
-                        translateY.value = withTiming(fullOpenY);
-                        runOnJS(setDisplayDirections)(false);
-                     
                     }
                 }
             }
@@ -157,11 +165,12 @@ const Home = ({navigation, route}) => {
 	});
 
 
-    const closeDestination = () =>{
-        if(displayDirections){
-            translateY.value = withTiming(closedY);
-            setDisplayDirections(false);
-        }
+    const onDestination = () =>{
+     
+        translateY.value = withTiming(fullOpenY);
+        setDisplayDirections(false);
+        setAtDestination(true);
+        
     }
 
     //Starts animation of overlay
@@ -346,12 +355,9 @@ const Home = ({navigation, route}) => {
     // =         Handling user Location         =
     // ==========================================
     
-
     const [userLocation, setUserLocation] = useState(null);
     const [destination, setDestination] = useState(null)
     const GOOGLE_MAPS_APIKEY = 'AIzaSyCOdUUIs58JDt-_CRVEBEf70hUnpH7-4tE'
-
-  
 
     const region = {
         latitude: 55.8621133244897,
@@ -395,7 +401,6 @@ const Home = ({navigation, route}) => {
     const onDirectionReady = (result) => {
          // Extract legs and steps from the result
          const legs = result.legs ;
-
          setDistance(legs[0].steps[0].distance.text);
          setManeuver(legs[0].steps[1].maneuver);
 
@@ -425,19 +430,12 @@ const Home = ({navigation, route}) => {
         markerSetup(minAED);
     }
 
-    const reachedAED = () => {
-       
-       const distance = haversine(userLocation, destination, {unit: 'meter'})
-       
-        if(distance < 50){
-            closeDestination();
-        }
-        
-    }
-
     useEffect(() => {
-        if (userLocation != null && destination != null){
-            reachedAED();
+        if (userLocation != null && destination != null && displayDirections){
+            const distance = haversine(userLocation, destination, {unit: 'meter'})
+            if(distance < 40){
+                onDestination();
+            }
         }
     }, [userLocation]);
     
@@ -509,7 +507,6 @@ const Home = ({navigation, route}) => {
                 resizeMode='contain'
                 style={{height: '100%', width: '100%'}}
             />
-            
         </TouchableOpacity>
        
         <TouchableOpacity style={styles.cprButton} onPress={cprAnimation}>
@@ -539,53 +536,24 @@ const Home = ({navigation, route}) => {
                 </Animated.View>
             ) : null }
                 {fullOpenVisible ? (
-                    <Animated.View style={[styles.fullOpenView, fullOpenViewOpacityChange]}>
-                        <AEDImageContainer style={styles.aedFull} onPress={toggleImageModal} base64Image={getImg} />
-                        <ScrollView style={styles.informationScrollView} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
-
-                            <HeaderWithInfo title={'Name'}>
-                                <Text style={styles.text}>{getName}</Text>
-         
-                            </HeaderWithInfo>
-                           
-                            <HeaderWithInfo title={'Address'} split={true}>
-                                <> 
-                                    <Text style={styles.subTitle}>Address</Text>
-                                    <Text style={styles.text}>{getName}</Text>
-                                    {getAddress.map((value, index) => (
-                                        <Text key={index} style={styles.text}>{value}</Text>
-                                    ))}
-                                </>
-                                <> 
-                                    <Text style={styles.subTitle}>Floor</Text>
-                                    <Text style={styles.text}>{getFloor}</Text>
-                                </>
-                            </HeaderWithInfo>
-
-                            <HeaderWithInfo title={'Opening Times'} split={true}>
-                                <> 
-                                    <Text style={styles.subTitle}>Day</Text>
-                                    {openingTimesOrder.map((value, index) => (
-                                        <Text key={index} style={styles.text}>{value}</Text>
-                                    ))}
-                                </>
-                                <> 
-                                    <Text style={styles.title}></Text>
-                                    {getOpeningTimes.map((value, index) => (
-                                        <Text key={index} style={styles.text}>{value}</Text>
-                                    ))}
-                                </>
-                            </HeaderWithInfo>
-
-                            <HeaderWithInfo title={'Description'}>
-                                <Text style={styles.text}>{getDesc}</Text>
-                            </HeaderWithInfo>
-
-                            <HeaderWithInfo title={'Brand'}>
-                                <Text style={styles.text}>{getBrand}</Text>
-                            </HeaderWithInfo>
-
-                        </ScrollView>
+                    <Animated.View style={[styles.destinationView, fullOpenViewOpacityChange]}>
+                        <View style={styles.headerInfoContainer}>
+                            <View style={styles.textContainerCentered}>
+                                <Text style={styles.title}>Go right</Text>
+                            </View>
+                            <View style={styles.destinationImageContainer}>
+                                <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
+                                    <TouchableOpacity onPress={toggleImageModal}>
+                                        <Image
+                                                source={require('../assets/images/placeholder_aed.jpg')}
+                                                resizeMode='cover'
+                                                style={styles.allAvailableSpace}
+                                            />
+                                    </TouchableOpacity>
+                                </ImageInsideInfo>
+                            </View>
+                        </View>
+                    
                    </Animated.View>
                 ) : null }
                 {displayDirections ? (
@@ -622,6 +590,7 @@ const Home = ({navigation, route}) => {
                         
                     </Animated.View>
                 ) : null }
+               
                 <View style={styles.curvedIcon}/>
             </Animated.View>
         </PanGestureHandler>
