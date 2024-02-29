@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Alert } from 'react-native';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './services/firebaseConfig';
 import { getStorage, ref, getBlob} from 'firebase/storage'
 import { Audio } from 'expo-av';
 import * as SplashScreen from 'expo-splash-screen';
+import jsonData from './assets/JSON/consent.json'
 
-
+const alertMessage = jsonData.join('\n\n');
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
@@ -65,26 +67,28 @@ export const DataProvider = ({ children }) => {
         const fetchData = async () => {
             try {
                 // Load locations and AEDs in parallel
-                const [locations, aeds] = await Promise.all([
+                const [locationsLoaded, aedsLoaded] = await Promise.all([
                     loadData('Locations'),
-                  //  loadData('Aeds')
+                    loadData('Aeds')
                 ]);
-                setLocations(locations);
-                setAeds(aeds);
+                setLocations(locationsLoaded ?? null);
+                setAeds(aedsLoaded ?? null);
     
-                // Fetch all images in parallel after AEDs are loaded
-                const coverImagesPromises = aeds.map(aed => aed.Image ? fetchImages(aed.Image) : null);
-                const coverImages = await Promise.all(coverImagesPromises);
-    
-                // Update state once with all images
-                const newCoverImagesBase64 = coverImages.reduce((acc, imageData, index) => {
-                    if (imageData) {
-                        acc[aeds[index].id] = imageData;
-                    }
-                    return acc;
-                }, {});
-    
-                setCoverImagesBase64(prev => ({ ...prev, ...newCoverImagesBase64 }));
+                if(aedsLoaded){
+                    const coverImagesPromises = aedsLoaded.map(aed => aed.Image ? fetchImages(aed.Image) : null);
+                    const coverImages = await Promise.all(coverImagesPromises);
+        
+                    // Update state once with all images
+                    const newCoverImagesBase64 = coverImages.reduce((acc, imageData, index) => {
+                        if (imageData) {
+                            acc[aedsLoaded[index].id] = imageData;
+                        }
+                        return acc;
+                    }, {});
+        
+                    setCoverImagesBase64(prev => ({ ...prev, ...newCoverImagesBase64 }));
+                }
+            
     
                 // Similar approach for indoor images...
     
@@ -92,7 +96,16 @@ export const DataProvider = ({ children }) => {
                 console.error("Error loading data", error);
                 // Handle the error appropriately
             } finally {
+
                 SplashScreen.hideAsync();
+                Alert.alert('Consent', alertMessage, [
+                    {
+                      text: 'Decline',
+                      onPress: () =>Alert.alert('Notice', 'You cannot use this app without providing consent. Please close the app.'),
+                      style: 'cancel',
+                    },
+                    {text: 'Accept'},
+                ]);
             }   
         };
     

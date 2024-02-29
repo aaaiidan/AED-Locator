@@ -15,7 +15,7 @@ import { useData } from '../DataContext';
 import styles from '../styles';
 import ImageInsideInfo from '../components/presentation/image_inside_info';
 import Unavailable from '../components/presentation/unavailable';
-import ErrorModal from '../components/presentation/error_modal';
+
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -391,10 +391,6 @@ const Home = ({navigation, route}) => {
             })
         }
     },[getImg]);
-
-
-    
-   
 
     // ==========================================
     // =         Handling user Location         =

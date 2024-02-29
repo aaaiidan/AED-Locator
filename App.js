@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './navigation/Container';
@@ -7,7 +8,7 @@ import { DataProvider } from './DataContext';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function App() {    
+export default function App() {  
 
     return (
         <DataProvider>
