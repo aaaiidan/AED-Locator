@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { View, TouchableOpacity , Text, Image, Dimensions, ScrollView } from 'react-native';
+import { View, TouchableOpacity , Text, Image, Dimensions, ScrollView, Alert } from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
@@ -14,17 +14,19 @@ import HeaderWithInfo from '../components/presentation/header_with_info';
 import { useData } from '../DataContext';
 import styles from '../styles';
 import ImageInsideInfo from '../components/presentation/image_inside_info';
+import Unavailable from '../components/presentation/unavailable';
+import ErrorModal from '../components/presentation/error_modal';
 
 const screenHeight = Dimensions.get('window').height;
-const screenWdidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get('window').width;
 const placeholder_aed = require('../assets/images/placeholder_aed.png');
 const image = Image.resolveAssetSource(placeholder_aed);
-const addressOrder = ['AddressLine1', 'City', 'Postcode']
+const addressOrder = ['AddressLine1', 'AddressLine2', 'City', 'Postcode']
 const openingTimesOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 const Home = ({navigation, route}) => {
     const [containerHeight, setContainerHeight] = useState(screenHeight);
-    const [directionContainerWidth, setDirectionContainerWidth] = useState(screenWdidth);
+    const [directionContainerWidth, setDirectionContainerWidth] = useState(screenWidth);
 
     const onContainerLayout = (event) => {
         const { height } = event.nativeEvent.layout;
@@ -69,8 +71,7 @@ const Home = ({navigation, route}) => {
     const [scrollEnabled, setScrollEnabled] = useState(false);
  
      //Variables for image modal
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [ratio, setRatio] = useState(0);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const [isPositive, setIsPositive] = useState(true);
 
@@ -194,8 +195,9 @@ const Home = ({navigation, route}) => {
 
     //Toggle enhanced image visibility
     const toggleImageModal = () => {
-        setModalVisible(!isModalVisible)
+        setModalVisible(!modalVisible)
     }
+
 
     //Function that changes the y position of pop up depending on users swipe
     const animatedStyle = useAnimatedStyle(() => {
@@ -261,8 +263,8 @@ const Home = ({navigation, route}) => {
             console.log('start animation')
             cprScale.value = withRepeat(
                 withSequence(
-                    withTiming(1.2, { duration: 545 }),
-                    withTiming(1, { duration:  545 })
+                    withTiming(1.2, { duration: 272.5 }),
+                    withTiming(1, { duration:  272.5 })
                 ),
                 -1, // Infinite repeats
             );
@@ -329,7 +331,7 @@ const Home = ({navigation, route}) => {
    
 
     const formatData = (location) => {
-        setAddress(addressOrder.map(key => location.Address[key]));
+        setAddress(addressOrder.map(key => location.Address[key]).filter(Boolean))
 
         setOpeningTimes(
             openingTimesOrder.map(key => {
@@ -343,23 +345,22 @@ const Home = ({navigation, route}) => {
         );
 
         setName(location.Name);
-        setDestination(location.Coordinates);
-        console.log('after load - ', destination);
+        setDestination(location.Name + ', ' + (addressOrder.map(key => location.Address[key])).join(', '));
 
-        aeds.some(aed => {
-            if(aed.LocationRef.id == location.id){
-                console.log('111111111111111', aed.LocationRef);
-                setID(aed.id ?? null)
-                setBrand(aed.Brand != null ? aed.Brand : '-');
-                setDesc(aed.Description != null ? aed.Description : '-');
-                setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
-                setIndoorDirections(aed.IndoorDirections ?? []);
-                setImg(aed.id in coverImagesBase64 ? coverImagesBase64[aed.id] : null);
-                
-                return true;
-            }
-            return false;
-        });
+        if(aeds){
+            aeds.some(aed => {
+                if(aed.LocationRef.id == location.id){
+                    console.log('111111111111111', aed.LocationRef);
+                    setID(aed.id ?? null)
+                    setBrand(aed.Brand != null ? aed.Brand : '-');
+                    setDesc(aed.Description != null ? aed.Description : '-');
+                    setFloor(aed.FloorLevel != null ? 'Level ' + aed.FloorLevel : '-');
+                    setIndoorDirections(aed.IndoorDirections ?? []);
+                    setImg(aed.id in coverImagesBase64 ? coverImagesBase64[aed.id] : null);
+                }
+            });
+        }
+       
        console.log(getIndoorDirections);
     }
 
@@ -374,18 +375,25 @@ const Home = ({navigation, route}) => {
 
 
     useEffect(() => {
-        setRatio(screenWdidth/image.width); //Adjust enhanced image height depending on width
         setCprAnimationActive(cprSoundActivated);
     },[]);
 
-    useEffect(() => {
-        
-        Object.entries(coverImagesBase64).forEach(([key, value]) => {
-            console.log(key); 
-        });
-    }, [coverImagesBase64]);
-    
+    const [modalImageHeight ,setModalImageHeight] = useState(0);
 
+    useEffect(() => {
+        if(getImg){
+            Image.getSize(getImg, (width, height) => {
+                setModalImageHeight((height/width)* screenWidth); //Adjust enhanced image height depending on width
+            })
+        } else {
+            Image.getSize(image.uri, (width, height) => {
+                setModalImageHeight((height/width)* screenWidth); //Adjust enhanced image height depending on width
+            })
+        }
+    },[getImg]);
+
+
+    
    
 
     // ==========================================
@@ -438,9 +446,13 @@ const Home = ({navigation, route}) => {
     const onDirectionReady = (result) => {
          // Extract legs and steps from the result
         if( result.legs && result.legs.length > 0 ){
-            const steps = result.legs[0].steps ? result.legs[0].steps : [] ;
-            setDistance(steps[0]?.distance?.text ?? null);
-            setManeuver(steps[1]?.maneuver ?? null);
+            if(result.legs[0].distance.value < 50){
+                onDestination();
+            } else {
+                const steps = result.legs[0].steps ? result.legs[0].steps : [] ;
+                setDistance(steps[0]?.distance?.text ?? null);
+                setManeuver(steps[1]?.maneuver ?? null);
+            }
         }
     }
          
@@ -451,26 +463,28 @@ const Home = ({navigation, route}) => {
     };
 
     const closestAED = () => {
-        let min = Infinity;
-        let minAED = null;
-        locations && locations.map((location, index) => {
-            const distance = haversine(userLocation, location.Coordinates, {unit: 'meter'})
-            if(min > distance){
-                min = distance
-                minAED = location
-           }
-        })
-        markerSetup(minAED);
+        if(locations && aeds){
+            let min = Infinity;
+            let minAED = null;
+
+            locations && locations.map((location, index) => {
+                const distance = haversine(userLocation, location.Coordinates, {unit: 'meter'})
+                if(min > distance){
+                    min = distance
+                    minAED = location
+                }
+            })
+            markerSetup(minAED);
+        } else {
+            Alert.alert('Error', 'Unable to load nearest AED', [
+                {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ]);
+        }
+        
     }
 
-    useEffect(() => {
-        if (userLocation != null && destination != null && displayDirections){
-            const distance = haversine(userLocation, destination, {unit: 'meter'})
-            if(distance < 50){
-                onDestination();
-            }
-        }
-    }, [userLocation]);
+    
+
 
 
     return (
@@ -480,7 +494,7 @@ const Home = ({navigation, route}) => {
             useNativeDriver={true}
             animationIn='fadeIn'
             animationOut='fadeOut'
-            isVisible={isModalVisible}
+            isVisible={modalVisible}
             hideModalContentWhileAnimating
             onBackButtonPress={toggleImageModal}
             onBackdropPress={toggleImageModal}
@@ -489,7 +503,7 @@ const Home = ({navigation, route}) => {
             <Image 
                 source={getImg ? { uri: getImg } : placeholder_aed}
                 resizeMode='contain'
-                style={{ width: '100%', height: image.height * ratio}}
+                style={{ width: '100%', height: modalImageHeight}}
             />
         </Modal>
         <MapView 
@@ -528,8 +542,8 @@ const Home = ({navigation, route}) => {
                     strokeWidth={6}
                     strokeColor="#018489"
                     onReady={onDirectionReady}
-                    mode='WALKING'
-                    resetOnChange = {false}
+                    mode='BICYCLING'
+                    resetOnChange={false}
                 />
             ) : null} 
         </MapView>
@@ -655,51 +669,71 @@ const Home = ({navigation, route}) => {
                 ) : null }
                 {atDestination ? (
                    <Animated.View style={[styles.destinationView, fullOpenViewOpacityChange]} onLayout={onDestinationViewLayout}>
-                   <ScrollView  horizontal pagingEnabled ref={horizontalScrollViewRef} onScroll={handleScroll} scrollEventThrottle={16} style={{flex:1}}>
+                   
+                    {getIndoorDirections.length > 0 ? getIndoorDirections.map((direction, index) => (
+                        <>
+                            <ScrollView  horizontal pagingEnabled ref={horizontalScrollViewRef} onScroll={handleScroll} scrollEventThrottle={16} style={{flex:1}}>
+                                <View key={index} style={[styles.headerInfoContainer, {width: directionContainerWidth}]}>
 
-                    {getIndoorDirections.map((direction, index) => (
-                        <View key={index} style={[styles.headerInfoContainer, {width: directionContainerWidth}]}>
+                                    {getIndoorDirections.length-1 == index ? (
+                                            <View style={styles.textContainerCentered}>
+                                                <Text style={styles.title}>{direction ?? 'Unavailable'}</Text>
+                                            </View>
+                                        ) : (
+                                            <View style={styles.textContainerCentered}>
+                                                <Text style={styles.title}>{direction.Text ?? 'Unavailable'}</Text>
+                                            </View>
+                                    )}
 
-                            <View style={styles.textContainerCentered}>
-                                <Text style={styles.title}>{direction.Text ?? 'Unavailable'}</Text>
-                            </View>
+                                    <View style={styles.destinationImageContainer}>
+                                        
+                                        {Object.keys(indoorImagesBase64) !=0  && indoorImagesBase64[getID][index]? 
+                                        (
+                                            <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
+                                                <Image
+                                                    source={{uri: indoorImagesBase64[getID][index]}}
+                                                    resizeMode='cover'
+                                                    style={[styles.allAvailableSpace, {borderColor: 'white', borderWidth: 2}]}
+                                                />
+                                            </ImageInsideInfo>
+                                        ) : getIndoorDirections.length-1 == index ? 
+                                            (
+                                                <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
+                                                    <Image
+                                                        source={getImg ? { uri: getImg } : placeholder_aed}
+                                                        resizeMode='cover'
+                                                        style={[styles.allAvailableSpace, {borderColor: 'white', borderWidth: 2}]}
+                                                    />
+                                            </ImageInsideInfo>
+                                            ):(
+                                                <Text style={styles.title}>Image Unavailable</Text>
+                                        )}
+                                    </View>
+                                </View>
+                            </ScrollView>
+                            <TouchableOpacity style={styles.arrowRight} onPress={scrollToNextItem}>
+                                <Image
+                                    source={require('../assets/images/arrow.png')}
+                                    resizeMode='contain'
+                                    style={styles.allAvailableSpace}
+                                />
+                            </TouchableOpacity>
 
-                            <View style={styles.destinationImageContainer}>
+                            <TouchableOpacity style={styles.arrowLeft} onPress={scrollToPreviousItem}>
+                                <Image
+                                    source={require('../assets/images/arrow.png')}
+                                    resizeMode='contain'
+                                    style={styles.allAvailableSpace}
+                                />
+                            </TouchableOpacity>
 
-                                {indoorImagesBase64 && indoorImagesBase64[getID][index]? 
-                                (
-                                    <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
-                                        <TouchableOpacity onPress={toggleImageModal}>
-                                            <Image
-                                                source={{uri: indoorImagesBase64[getID][index]}}
-                                                resizeMode='cover'
-                                                style={[styles.allAvailableSpace, {borderColor: 'white', borderWidth: 2}]}
-                                            />
-                                        </TouchableOpacity>
-                                    </ImageInsideInfo>
-                                ) : (
-                                    <Text style={styles.title}>Image Unavailable</Text>
-                                )}
-                            </View>
-                        </View>
-                    ))}
-                     </ScrollView>
+                        </>
+                    )) : (
+                        <Unavailable text={'Error loading information'}/>
+                    )}
+                 
  
-                     <TouchableOpacity style={styles.arrowRight} onPress={scrollToNextItem}>
-                         <Image
-                             source={require('../assets/images/arrow.png')}
-                             resizeMode='contain'
-                             style={styles.allAvailableSpace}
-                         />
-                     </TouchableOpacity>
-
-                     <TouchableOpacity style={styles.arrowLeft} onPress={scrollToPreviousItem}>
-                         <Image
-                             source={require('../assets/images/arrow.png')}
-                             resizeMode='contain'
-                             style={styles.allAvailableSpace}
-                         />
-                     </TouchableOpacity>
+                    
                 </Animated.View>
                 ) : null
                 }

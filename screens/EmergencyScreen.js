@@ -10,9 +10,7 @@ import styles from '../styles';
 
 const EmergencyScreen = ({navigation}) => {
 
-    const{ setCprSoundActivated } = useData();
     const [switchSideLeft, setSwitchSideLeft] = useState(true);
-
 
     const onPressSwitch = (left) => {
         if(switchSideLeft === left){
@@ -38,16 +36,6 @@ const EmergencyScreen = ({navigation}) => {
           })
           .catch(err => console.log(err));
     }
-
-  
-
-    useEffect(() => {
-        if(!switchSideLeft){
-            setCprSoundActivated(true)
-        }
-    }, [switchSideLeft]);
-
-
 
     return (
         <View style={styles.container}>

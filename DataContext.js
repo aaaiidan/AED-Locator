@@ -3,15 +3,16 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db } from './services/firebaseConfig';
 import { getStorage, ref, getBlob} from 'firebase/storage'
 import { Audio } from 'expo-av';
+import * as SplashScreen from 'expo-splash-screen';
 
 
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-    const [locations, setLocations] = useState([]);
-    const [aeds, setAeds] = useState([]);
-    const [coverImagesBase64, setCoverImagesBase64] = useState({});
-    const [indoorImagesBase64, setIndoorImagesBase64] = useState({});
+    const [locations, setLocations] = useState(null);
+    const [aeds, setAeds] = useState(null);
+    const [coverImagesBase64, setCoverImagesBase64] = useState(null);
+    const [indoorImagesBase64, setIndoorImagesBase64] = useState(null);
     const [cprSoundActivated, setCprSoundActivated] = useState(false);
     const [sound, setSound] = useState(null);
 
@@ -37,7 +38,7 @@ export const DataProvider = ({ children }) => {
 
     const fetchImages = async (imagePath) => {
         if (imagePath != null){
-            const storageRef = ref(getStorage(), imagePath.path.replace('gs:/', 'gs://'))
+            const storageRef = ref(getStorage(), imagePath)
             try {
                 const blob = await getBlob(storageRef);
                 return convertBlobToBase64(blob)
@@ -60,46 +61,44 @@ export const DataProvider = ({ children }) => {
         reader.readAsDataURL(blob);
     });
 
-
     useEffect(() => { 
-
         const fetchData = async () => {
             try {
-                const locations = await loadData('Locations');
-                const aeds = await loadData('Aeds');
+                // Load locations and AEDs in parallel
+                const [locations, aeds] = await Promise.all([
+                    loadData('Locations'),
+                  //  loadData('Aeds')
+                ]);
                 setLocations(locations);
                 setAeds(aeds);
-
-                const storageDataUpdates = {};
-                const storageDataUpdates2 = {};
-
-                await Promise.all(aeds.map(async (aed) => {
-                    if (aed.Image) {
-                        const imageData = await fetchImages(aed.Image);
-                        storageDataUpdates[aed.id] = imageData;
+    
+                // Fetch all images in parallel after AEDs are loaded
+                const coverImagesPromises = aeds.map(aed => aed.Image ? fetchImages(aed.Image) : null);
+                const coverImages = await Promise.all(coverImagesPromises);
+    
+                // Update state once with all images
+                const newCoverImagesBase64 = coverImages.reduce((acc, imageData, index) => {
+                    if (imageData) {
+                        acc[aeds[index].id] = imageData;
                     }
-                    if (aed.IndoorDirections) {
-                        storageDataUpdates2[aed.id] = new Array(aed.IndoorDirections.length).fill(null);
-
-                        await Promise.all(aed.IndoorDirections.map(async (element, index) => {
-                            if (element.Image) {
-                                const imageData = await fetchImages(element.Image);
-                                storageDataUpdates2[aed.id][index] = imageData;
-                            }
-                        }));
-                    }
-                    
-                }));
-
-                setCoverImagesBase64(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates }));
-                setIndoorImagesBase64(prevStorageData => ({ ...prevStorageData, ...storageDataUpdates2 }));
-                
+                    return acc;
+                }, {});
+    
+                setCoverImagesBase64(prev => ({ ...prev, ...newCoverImagesBase64 }));
+    
+                // Similar approach for indoor images...
+    
             } catch (error) {
-
-            }        
-        }
+                console.error("Error loading data", error);
+                // Handle the error appropriately
+            } finally {
+                SplashScreen.hideAsync();
+            }   
+        };
+    
         fetchData();
-    },[]);
+    }, []);
+    
 
     async function playSound() {
         const { sound: newSound } = await Audio.Sound.createAsync(require('./assets/sounds/cpr.mp3'));
@@ -119,14 +118,9 @@ export const DataProvider = ({ children }) => {
         }
     }, [cprSoundActivated]);
 
-    useEffect(() => {
-        console.log(indoorImagesBase64['CE45SkrXSDCenDqYT9Hz'].length)
-    }, [indoorImagesBase64]);
+    
 
-
-   
-
-
+    
     return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
 

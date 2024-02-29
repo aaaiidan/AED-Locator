@@ -2,13 +2,12 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './navigation/Container';
-
+import * as SplashScreen from 'expo-splash-screen';
 import { DataProvider } from './DataContext';
-//import BottomTabs from './components/bottom_tabs';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {    
-
-
 
     return (
         <DataProvider>
