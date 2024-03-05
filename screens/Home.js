@@ -482,10 +482,6 @@ const Home = ({navigation, route}) => {
         
     }
 
-    
-
-
-
     return (
     <View style={styles.homeContainer} onLayout={onContainerLayout}>
         <Modal 
@@ -677,48 +673,52 @@ const Home = ({navigation, route}) => {
                 ) : null }
                 {atDestination ? (
                    <Animated.View style={[styles.destinationView, fullOpenViewOpacityChange]} onLayout={onDestinationViewLayout}>
+                        <ScrollView  horizontal pagingEnabled ref={horizontalScrollViewRef} onScroll={handleScroll} scrollEventThrottle={16} style={{flex:1}}>
                    
                     {getIndoorDirections.length > 0 ? getIndoorDirections.map((direction, index) => (
                         <>
-                            <ReactScrollView  horizontal pagingEnabled ref={horizontalScrollViewRef} onScroll={handleScroll} scrollEventThrottle={16} style={{flex:1}}>
-                                <View key={index} style={[styles.headerInfoContainer, {width: directionContainerWidth}]}>
+                            <View key={index} style={[styles.headerInfoContainer, {width: directionContainerWidth}]}>
 
-                                    {getIndoorDirections.length-1 == index ? (
-                                            <View style={styles.textContainerCentered}>
-                                                <Text style={styles.title}>{direction ?? 'Unavailable'}</Text>
-                                            </View>
-                                        ) : (
-                                            <View style={styles.textContainerCentered}>
-                                                <Text style={styles.title}>{direction.Text ?? 'Unavailable'}</Text>
-                                            </View>
-                                    )}
+                                {getIndoorDirections.length-1 == index ? (
+                                        <View style={styles.textContainerCentered}>
+                                            <Text style={styles.title}>{direction ?? 'Unavailable'}</Text>
+                                        </View>
+                                    ) : (
+                                        <View style={styles.textContainerCentered}>
+                                            <Text style={styles.title}>{direction.Text ?? 'Unavailable'}</Text>
+                                        </View>
+                                )}
 
-                                    <View style={styles.destinationImageContainer}>
-                                        
-                                        {Object.keys(indoorImagesBase64) !=0  && indoorImagesBase64[getID][index]? 
+                                <View style={styles.destinationImageContainer}>
+                                    
+                                    {Object.keys(indoorImagesBase64) !=0  && indoorImagesBase64[getID][index]? 
+                                    (
+                                        <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
+                                            <Image
+                                                source={{uri: indoorImagesBase64[getID][index]}}
+                                                resizeMode='cover'
+                                                style={[styles.allAvailableSpace, {borderColor: 'white', borderWidth: 2}]}
+                                            />
+                                        </ImageInsideInfo>
+                                    ) : getIndoorDirections.length-1 == index ? 
                                         (
                                             <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
                                                 <Image
-                                                    source={{uri: indoorImagesBase64[getID][index]}}
+                                                    source={getImg ? { uri: getImg } : placeholder_aed}
                                                     resizeMode='cover'
                                                     style={[styles.allAvailableSpace, {borderColor: 'white', borderWidth: 2}]}
                                                 />
-                                            </ImageInsideInfo>
-                                        ) : getIndoorDirections.length-1 == index ? 
-                                            (
-                                                <ImageInsideInfo imageBorderStyle={styles.destinationImageBorder}>
-                                                    <Image
-                                                        source={getImg ? { uri: getImg } : placeholder_aed}
-                                                        resizeMode='cover'
-                                                        style={[styles.allAvailableSpace, {borderColor: 'white', borderWidth: 2}]}
-                                                    />
-                                            </ImageInsideInfo>
-                                            ):(
-                                                <Text style={styles.title}>Image Unavailable</Text>
-                                        )}
-                                    </View>
+                                        </ImageInsideInfo>
+                                        ):(
+                                            <Text style={styles.title}>Image Unavailable</Text>
+                                    )}
                                 </View>
-                            </ReactScrollView>
+                            </View>
+                        </>
+                    )) : (
+                        <Unavailable text={'Error loading information'}/>
+                    )}
+                    </ScrollView>
                             <TouchableOpacity style={styles.arrowRight} onPress={scrollToNextItem}>
                                 <Image
                                     source={require('../assets/images/arrow.png')}
@@ -734,14 +734,6 @@ const Home = ({navigation, route}) => {
                                     style={styles.allAvailableSpace}
                                 />
                             </TouchableOpacity>
-
-                        </>
-                    )) : (
-                        <Unavailable text={'Error loading information'}/>
-                    )}
-                 
- 
-                    
                 </Animated.View>
                 ) : null
                 }
