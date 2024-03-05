@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { View, TouchableOpacity , Text, Image, Dimensions, ScrollView, Alert } from 'react-native';
+import { View, TouchableOpacity , Text, Image, Dimensions, Alert } from 'react-native';
+import { ScrollView as ReactScrollView } from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
 import AEDImageContainer from '../components/touchables/aed_image_container';
 import Animated, {  useSharedValue, useAnimatedStyle, withTiming, useAnimatedGestureHandler, interpolate, Extrapolate, runOnJS, withRepeat, withSequence } from 'react-native-reanimated';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import { PanGestureHandler, ScrollView } from 'react-native-gesture-handler';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import LocateIcon from '../components/touchables/locate_icon';
@@ -247,10 +248,12 @@ const Home = ({navigation, route}) => {
         translateY.value = withTiming(directionOpenY , {duration:750}); // Slide down to position directionOpenY
         markerRegion( {latitude: 55.8621133244897, longitude: -4.2423899331605615 }, {latitudeDelta: 0.01, longitudeDelta: 0.005}, 2000);
 
-        setTimeout(() => {
-            markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
-        }, 2500); 
-
+        if(userLocation){
+            setTimeout(() => {
+                markerRegion(userLocation, {latitudeDelta: 0.01, longitudeDelta: 0.005,}, 2000); 
+            }, 2500); 
+          
+        }
     };
 
     const cprAnimation = () =>{
@@ -459,7 +462,7 @@ const Home = ({navigation, route}) => {
     };
 
     const closestAED = () => {
-        if(locations && aeds){
+        if(locations && aeds && userLocation){
             let min = Infinity;
             let minAED = null;
 
@@ -473,7 +476,7 @@ const Home = ({navigation, route}) => {
             markerSetup(minAED);
         } else {
             Alert.alert('Error', 'Unable to load nearest AED', [
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: 'OK'},
               ]);
         }
         
@@ -530,7 +533,7 @@ const Home = ({navigation, route}) => {
                 );
             })}
 
-            {displayDirections ? (
+            {displayDirections && userLocation && destination ? (
                 <MapViewDirections
                     origin={userLocation}
                     destination={destination}
@@ -560,7 +563,7 @@ const Home = ({navigation, route}) => {
             />
         </TouchableOpacity>
     
-        <PanGestureHandler onGestureEvent={onGestureEvent} >
+        <PanGestureHandler onGestureEvent={onGestureEvent} waitFor='informationScrollView'>
             <Animated.View style={[styles.animatedView, animatedStyle]}>
             {!displayDirections ? (
                 <Animated.View style={[styles.smallView, smallViewOpacityChange]}>  
@@ -581,7 +584,7 @@ const Home = ({navigation, route}) => {
                 {fullOpenVisible ? (
                     <Animated.View style={[styles.fullOpenView, fullOpenViewOpacityChange]}>
                     <AEDImageContainer style={styles.aedFull} onPress={toggleImageModal} base64Image={getImg} />
-                    <ScrollView style={styles.informationScrollView} scrollEventThrottle={16} scrollEnabled={scrollEnabled} nestedScrollEnabled={true}>
+                    <ScrollView style={styles.informationScrollView} scrollEventThrottle={16} scrollEnabled={true} nestedScrollEnabled={true} nativeID='informationScrollView'>
 
                         <HeaderWithInfo title={'Name'}>
                             <Text style={styles.text}>{getName}</Text>
@@ -632,35 +635,44 @@ const Home = ({navigation, route}) => {
 
                 {displayDirections ? (
                     <Animated.View style={[styles.directionView, directonViewOpacityChange]}>
-                        <View style={styles.directionTopContainer}>
-                            <View style={[styles.textContainer, { marginRight: 3}]}>
-                                <Text style={styles.title}>{getName}</Text>
-                            </View>
-                            <View style={styles.textContainer}>
-                                <Text style={styles.title}>{distance}</Text>
-                            </View>
-                        </View>
-                         
-                        <View style={styles.directionBottomContainer}>
-                            <View style={[styles.imageContainer, {marginRight: 3}]}>
-                                <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
-                            </View>
+                        {userLocation && destination ?(
+                            <>
+                                <View style={styles.directionTopContainer}>
+                                    <View style={[styles.textContainer, { marginRight: 3}]}>
+                                        <Text style={styles.title}>{getName}</Text>
+                                    </View>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.title}>{distance}</Text>
+                                    </View>
+                                </View>
+                                
+                                <View style={styles.directionBottomContainer}>
+                                    <View style={[styles.imageContainer, {marginRight: 3}]}>
+                                        <AEDImageContainer style={styles.aedSmall} onPress={toggleImageModal} base64Image={getImg} />
+                                    </View>
 
-                            <View style={styles.imageContainer}>
-                                <Image 
-                                    source={
-                                        maneuver && maneuver.includes('left')
-                                        ? require('../assets/images/turn_left.png')
+                                    <View style={styles.imageContainer}>
+                                        <Image 
+                                            source={
+                                                maneuver && maneuver.includes('left')
+                                                ? require('../assets/images/turn_left.png')
 
-                                        : maneuver && maneuver.includes('right') 
-                                            ? require('../assets/images/turn_right.png')
-                                            : require('../assets/images/straight_arrow.png')
-                                    }
-                                    resizeMode='contain'
-                                    style={{height: '80%', width: '80%'}}
-                                />
-                            </View>
-                        </View>
+                                                : maneuver && maneuver.includes('right') 
+                                                    ? require('../assets/images/turn_right.png')
+                                                    : require('../assets/images/straight_arrow.png')
+                                            }
+                                            resizeMode='contain'
+                                            style={{height: '80%', width: '80%'}}
+                                        />
+                                    </View>
+                                </View>
+                            </>
+
+                        ) : (
+                            <Unavailable text={'Error accessing directions'}/>
+                        )}
+
+                        
                     </Animated.View>
                 ) : null }
                 {atDestination ? (
@@ -668,7 +680,7 @@ const Home = ({navigation, route}) => {
                    
                     {getIndoorDirections.length > 0 ? getIndoorDirections.map((direction, index) => (
                         <>
-                            <ScrollView  horizontal pagingEnabled ref={horizontalScrollViewRef} onScroll={handleScroll} scrollEventThrottle={16} style={{flex:1}}>
+                            <ReactScrollView  horizontal pagingEnabled ref={horizontalScrollViewRef} onScroll={handleScroll} scrollEventThrottle={16} style={{flex:1}}>
                                 <View key={index} style={[styles.headerInfoContainer, {width: directionContainerWidth}]}>
 
                                     {getIndoorDirections.length-1 == index ? (
@@ -706,7 +718,7 @@ const Home = ({navigation, route}) => {
                                         )}
                                     </View>
                                 </View>
-                            </ScrollView>
+                            </ReactScrollView>
                             <TouchableOpacity style={styles.arrowRight} onPress={scrollToNextItem}>
                                 <Image
                                     source={require('../assets/images/arrow.png')}

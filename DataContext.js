@@ -71,8 +71,8 @@ export const DataProvider = ({ children }) => {
                     loadData('Locations'),
                     loadData('Aeds')
                 ]);
-                setLocations(locationsLoaded ?? null);
-                setAeds(aedsLoaded ?? null);
+                setLocations(locationsLoaded != [] ? locationsLoaded : null);
+                setAeds(aedsLoaded !=[] ? aedsLoaded : null);
     
                 if(aedsLoaded){
                     const coverImagesPromises = aedsLoaded.map(aed => aed.Image ? fetchImages(aed.Image) : null);
@@ -87,6 +87,31 @@ export const DataProvider = ({ children }) => {
                     }, {});
         
                     setCoverImagesBase64(prev => ({ ...prev, ...newCoverImagesBase64 }));
+
+
+                    // Step 1: Map over aedsLoaded to handle each AED's IndoorDirections
+                    const indoorImagesPromises = aedsLoaded.map(aed => 
+                        aed.IndoorDirections 
+                        ? Promise.all(aed.IndoorDirections.map(direction => 
+                            direction.Image ? fetchImages(direction.Image) : Promise.resolve(null)
+                            ))
+                        : Promise.resolve([]) // Return a promise with an empty array for AEDs without IndoorDirections
+                    );
+                    
+                    // Step 2: Await all promises to resolve
+                    const indoorImagesResults = await Promise.all(indoorImagesPromises);
+                    
+                    // Step 3: Reduce the results to the desired structure for state update, keeping nulls
+                    const newIndoorImagesBase64 = indoorImagesResults.reduce((acc, images, index) => {
+                        // Directly use the images array, including nulls
+                        acc[aedsLoaded[index].id] = images;
+                        return acc;
+                    }, {});
+                    
+                    // Update state once with all fetched (and non-fetched) images
+                    setIndoorImagesBase64(prev => ({ ...prev, ...newIndoorImagesBase64 }));
+  
+
                 }
             
     

@@ -11,6 +11,7 @@ const AEDScreen = ({navigation}) => {
   
     return (
         <View style={styles.container}>
+            {console.log(locations)}
             {locations && aeds ? (
                  <ScrollView >
                  {locations.map((location) => {
