@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { View, TouchableOpacity , Text, Image, Dimensions, Alert } from 'react-native';
-import { ScrollView as ReactScrollView } from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Modal from 'react-native-modal';
