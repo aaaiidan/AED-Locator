@@ -1,16 +1,22 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import StackNavigator from './navigation/Container';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-//import BottomTabs from './components/bottom_tabs';
+import TabNavigator from './navigation/Container';
+import * as SplashScreen from 'expo-splash-screen';
+import { DataProvider } from './DataContext';
 
-export default function App() {
-  return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <NavigationContainer >
-      <StackNavigator />
-    </NavigationContainer>
-    </GestureHandlerRootView>
+SplashScreen.preventAutoHideAsync();
+
+export default function App() {  
+
+    return (
+        <DataProvider>
+            <GestureHandlerRootView style={{flex: 1}}>
+                <NavigationContainer >
+                    <TabNavigator/>
+                </NavigationContainer>
+            </GestureHandlerRootView>
+        </DataProvider>
   );
 }

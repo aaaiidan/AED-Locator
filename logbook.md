@@ -101,5 +101,72 @@ that is pushed to master, as well as any design, research, testing and thought p
 ### 25/11/2023
 * Changed pop up to be an Animated view handle by gesture handle instead of using modal (1 hour 20 minutes)
   * Used [React-Native-Reanimated](https://github.com/software-mansion/react-native-reanimated) and [React-Native-Gesture-Handler](https://github.com/software-mansion/react-native-gesture-handler) to allow for more functionality than Modal
+
 * Fixed issues with gesture handler swiping (30 minutes)
+
 * Integrated new pop up feature into home screen (10 minutes)
+
+### 13/12/2023
+* Research database types (SQL, NoSQL) (local databse, cloud database) and gather data needed for database (3 hours 30 minutes)
+
+* Initially set up a SQLite database using [DB Browser](https://sqlitebrowser.org/) (SQLite)
+    * Create schema and populate tables
+        * Data populated included AEDs, Locations, Opening Times
+
+### 14/12/2023
+* Continute to research best practice for storing data in a SQL database (1 hour)
+    * Ensuring normal forms are met
+
+* Populate Locations (2 hours 15 minutes)
+    * Added coordinates
+    * Improved storage of opening times
+
+### 18/12/2023
+* Changing database to NoSQL, specifically Firebase Firestore (4 hours)
+    * Decision made due to administrative control of database needing to be implemented
+        * Allows for data to be edited and work directly on app for all users
+    * Set up Firebase Firestore
+        * Create collections and documents
+
+* Adding config files to connect Firestore to React Native app (2 hours 30 minutes)
+    * Used [Firebase](https://docs.expo.dev/guides/using-firebase/)
+    * Create Initial query to test connection
+
+* Introduced location tracking of user on app (1 hour 30 minutes)
+    * Used [expo-location](https://docs.expo.dev/versions/latest/sdk/location/)
+
+### 19/12/2023
+* Continue to populate collections and create more specific queries (2 hours)
+    * query to get all location data to display on mapview
+
+* Display queried data on map (5 hours)
+    * Create markers for all AEDs
+        * Create marker icon
+
+### 21/21/2023
+* Change where animatedView is within the component hierachy (5 hours)
+    * This was done to allow the animated view to cover the navbar when activated
+    * useRef was used to complete this
+
+### 22/12/2023
+* Revert back to previous iteration i.e have animatedView behind navbar (4 hours)
+    * Caused too many issues and was inefficent
+    * Further updated the design of animatedView
+        * Providing specific information to user on AED
+
+* Improve animation conditions for animatedView (4 hours)
+    * Started to implement four different stages of the animation
+
+### 23/12/2023
+* Further work on animationView ( 4 hours 15 minutes)
+    * Improve animation transitions
+    * Improve display, information and the four stages of the animation
+
+### 27/12/2023
+* Finish style and animation for overlay on test screen (3 hours 45 minutes)
+    * Template information used initially
+    * Introduced ScrollView
+    * Improved animation
+
+* Began transition of overlay from test page to home screen (2 hours 15 minutes)
+    * Small View displaying information correctly

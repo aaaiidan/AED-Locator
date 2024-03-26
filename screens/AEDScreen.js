@@ -1,71 +1,37 @@
-import * as React from 'react';
-import { View, Image, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import PinIcon from '../components/pin';
-//import externalStyle from '../style/externalStyle';
-
-const screenHeight = Dimensions.get('window').height
-const noOfAED = 7 // placeholder
-
-const scrollViewHeight = ({ noOfAED }) => {
-    return noOfAED % 2 === 1 ? (((noOfAED + 0.5) / 4) * 100).toString() + '%' : (((noOfAED - 0.5)/ 4) * 100).toString() + '%'
-};
-
-const pinHeight = ({ noOfAED }) => {
-    return noOfAED % 2 === 1 ? ((100/(((noOfAED + 0.5) / 4) * 100)) * 33.33).toString() + '%' : ((100/(((noOfAED - 0.5) / 4) * 100)) * 33.33).toString() + '%'
-}
+import React from 'react';
+import { View, ScrollView } from 'react-native';
+import ImageTextButton from '../components/touchables/image_text_button';
+import { useData } from '../DataContext';
+import styles from '../styles';
+import Unavailable from '../components/presentation/unavailable';
 
 
 const AEDScreen = ({navigation}) => {
-
+    const{ locations, aeds, coverImagesBase64 } = useData();
+  
     return (
         <View style={styles.container}>
-            <View style={styles.subContainer}>
-                <ScrollView contentContainerStyle={styles.scrollView}>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                    <PinIcon style={styles.pin} navigation={navigation}/>
-                </ScrollView>
-            </View>
+            {console.log(locations)}
+            {locations && aeds ? (
+                 <ScrollView >
+                 {locations.map((location) => {
+                     let img = null;
+                     aeds.map((aed) => {
+                         if(aed.LocationRef.id == location.id){
+                             img = aed.id in coverImagesBase64 ? {uri :coverImagesBase64[aed.id]} : require('../assets/images/placeholder_aed.png')
+                         }
+                     });
+                     return(
+                         <ImageTextButton key={location.id} image={img} imageStyle={styles.defaultImageStyle} text={location.Name} textStyle={styles.largeTitle} navigation={navigation} screen={'Map'} action={location} circle={true}/>
+                     )
+                 })}
+             </ScrollView>
+
+            ):(
+                <Unavailable text={'Error loading AEDs'}/>
+            )}
+           
         </View>
-        
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#15202b',
-        paddingLeft: (screenHeight * 0.025),
-        paddingRight: (screenHeight * 0.025),
-        paddingTop: (screenHeight * 0.025) ,
-        paddingBottom: (screenHeight * 0.025),
-    },
-    subContainer: {
-        flex: 1,
-        backgroundColor: '#192734',
-        height: '100%' ,
-        width: '100%',
-    },
-    scrollView:{
-        flexGrow: 1,
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-        height: scrollViewHeight({noOfAED })
-    },
-    pin : {
-        width: '50%',
-        height: pinHeight({noOfAED }),
-        marginBottom: '22%',
-    }
-   
-});
-    
 export default AEDScreen;
